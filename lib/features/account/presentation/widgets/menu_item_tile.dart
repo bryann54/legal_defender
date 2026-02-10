@@ -53,7 +53,7 @@ class MenuItemTile extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Icon(
@@ -82,7 +82,7 @@ class MenuItemTile extends StatelessWidget {
             subtitle!,
             style: GoogleFonts.poppins(
               fontSize: 12,
-              color: theme.colorScheme.onSurface.withOpacity(0.5),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
             ),
           ),
         ],
@@ -95,7 +95,7 @@ class MenuItemTile extends StatelessWidget {
 
     return Icon(
       Icons.chevron_right,
-      color: theme.colorScheme.onSurface.withOpacity(0.3),
+      color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
       size: 20,
     );
   }

@@ -16,7 +16,7 @@ class SupportMenuSection extends StatelessWidget {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Theme.of(context).dividerColor.withOpacity(0.1),
+          color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
         ),
       ),
       child: Column(
@@ -76,7 +76,7 @@ class SupportMenuSection extends StatelessWidget {
     return Divider(
       height: 1,
       indent: 60,
-      color: Theme.of(context).dividerColor.withOpacity(0.1),
+      color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
     );
   }
 

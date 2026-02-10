@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:legal_defender/common/res/colors.dart';
+import 'package:legal_defender/common/res/l10n.dart';
 
 enum DialogType {
   info,
@@ -60,7 +60,6 @@ class CustomAlertDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = AppColors.of(context);
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -83,7 +82,11 @@ class CustomAlertDialog extends StatelessWidget {
                 alignment: Alignment.topRight,
                 child: IconButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close, size: 20),
+                  icon: Icon(
+                    Icons.close,
+                    size: 20,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
                   padding: const EdgeInsets.all(12),
                   visualDensity: VisualDensity.compact,
                 ),
@@ -106,7 +109,7 @@ class CustomAlertDialog extends StatelessWidget {
                       height: 48,
                       margin: const EdgeInsets.only(bottom: 16),
                       decoration: BoxDecoration(
-                        color: _getIconColor(context).withOpacity(0.1),
+                        color: _getIconColor(context).withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Center(
@@ -129,7 +132,8 @@ class CustomAlertDialog extends StatelessWidget {
                         style: messageStyle ??
                             theme.textTheme.bodyMedium?.copyWith(
                               color:
-                                  theme.colorScheme.onSurface.withOpacity(0.7),
+                                  theme.colorScheme.onSurface
+                                  .withValues(alpha: 0.7),
                               height: 1.5,
                             ),
                       ),
@@ -139,7 +143,7 @@ class CustomAlertDialog extends StatelessWidget {
                   if (actions != null)
                     ...actions!
                   else
-                    _buildDefaultActions(context),
+                    _buildDefaultActions(context, theme),
                 ],
               ),
             ),
@@ -150,7 +154,7 @@ class CustomAlertDialog extends StatelessWidget {
   }
 
   Widget _buildDefaultIcon(BuildContext context) {
-    final theme = Theme.of(context);
+    Theme.of(context);
     final iconData = switch (type) {
       DialogType.success => Icons.check_circle,
       DialogType.error => Icons.error,
@@ -177,7 +181,7 @@ class CustomAlertDialog extends StatelessWidget {
     };
   }
 
-  Widget _buildDefaultActions(BuildContext context) {
+  Widget _buildDefaultActions(BuildContext context, ThemeData theme) {
     return Row(
       children: [
         if (showCancelButton) ...[
@@ -190,14 +194,14 @@ class CustomAlertDialog extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 side: BorderSide(
-                  color: cancelButtonColor ?? Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+                  color: cancelButtonColor ?? theme.dividerColor,
                 ),
               ),
               child: Text(
-                cancelText ?? 'Cancel',
+                cancelText ??
+                    AppLocalizations.getString(context, 'common.cancel'),
                 style: TextStyle(
-                  color: cancelButtonColor ??
-                      Theme.of(context).colorScheme.onSurface,
+                  color: cancelButtonColor ?? theme.colorScheme.onSurface,
                 ),
               ),
             ),
@@ -216,7 +220,8 @@ class CustomAlertDialog extends StatelessWidget {
                 backgroundColor: confirmButtonColor ?? _getIconColor(context),
               ),
               child: Text(
-                confirmText ?? 'Confirm',
+                confirmText ??
+                    AppLocalizations.getString(context, 'common.confirm'),
                 style: const TextStyle(color: Colors.white),
               ),
             ),
@@ -286,8 +291,8 @@ class AppDialogs {
     required BuildContext context,
     required String title,
     required String message,
-    String confirmText = 'Delete',
-    String cancelText = 'Cancel',
+    String? confirmText,
+    String? cancelText,
     VoidCallback? onConfirm,
     VoidCallback? onCancel,
     bool destructive = true,
@@ -297,8 +302,10 @@ class AppDialogs {
       title: title,
       message: message,
       type: destructive ? DialogType.error : DialogType.confirm,
-      confirmText: confirmText,
-      cancelText: cancelText,
+      confirmText:
+          confirmText ?? AppLocalizations.getString(context, 'common.delete'),
+      cancelText:
+          cancelText ?? AppLocalizations.getString(context, 'common.cancel'),
       showCancelButton: true,
       showConfirmButton: true,
       onConfirm: onConfirm,
@@ -313,7 +320,7 @@ class AppDialogs {
     required String title,
     String? message,
     Widget? content,
-    String buttonText = 'OK',
+    String? buttonText,
     VoidCallback? onConfirm,
   }) {
     return CustomAlertDialog.show(
@@ -322,7 +329,8 @@ class AppDialogs {
       message: message,
       content: content,
       type: DialogType.info,
-      confirmText: buttonText,
+      confirmText:
+          buttonText ?? AppLocalizations.getString(context, 'common.ok'),
       showCancelButton: false,
       showConfirmButton: true,
       onConfirm: onConfirm ?? () => Navigator.of(context).pop(),
@@ -334,7 +342,7 @@ class AppDialogs {
     required BuildContext context,
     required String title,
     String? message,
-    String buttonText = 'OK',
+    String? buttonText,
     VoidCallback? onConfirm,
   }) {
     return CustomAlertDialog.show(
@@ -342,7 +350,8 @@ class AppDialogs {
       title: title,
       message: message,
       type: DialogType.success,
-      confirmText: buttonText,
+      confirmText:
+          buttonText ?? AppLocalizations.getString(context, 'common.ok'),
       showCancelButton: false,
       showConfirmButton: true,
       onConfirm: onConfirm ?? () => Navigator.of(context).pop(),
@@ -354,7 +363,7 @@ class AppDialogs {
     required BuildContext context,
     required String title,
     String? message,
-    String buttonText = 'OK',
+    String? buttonText,
     VoidCallback? onConfirm,
   }) {
     return CustomAlertDialog.show(
@@ -362,7 +371,8 @@ class AppDialogs {
       title: title,
       message: message,
       type: DialogType.error,
-      confirmText: buttonText,
+      confirmText:
+          buttonText ?? AppLocalizations.getString(context, 'common.ok'),
       showCancelButton: false,
       showConfirmButton: true,
       onConfirm: onConfirm ?? () => Navigator.of(context).pop(),

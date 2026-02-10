@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:legal_defender/common/notifiers/locale_provider.dart';
 import 'package:legal_defender/common/res/l10n.dart';
 import 'package:legal_defender/common/res/colors.dart';
+import 'package:legal_defender/common/widgets/custom_alert_dialog.dart';
 import 'package:legal_defender/features/account/presentation/bloc/account_bloc.dart';
 import 'package:legal_defender/features/account/domain/entities/user_profile.dart';
 import 'package:legal_defender/features/account/presentation/widgets/account_menu_section.dart';
@@ -151,7 +152,7 @@ class _AccountScreenState extends State<AccountScreen> {
       children: [
         CircleAvatar(
           radius: 16,
-          backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+          backgroundColor: AppColors.primaryColor.withValues(alpha: 0.1),
           child: Text(
             _getInitials(profile.username),
             style: GoogleFonts.poppins(
@@ -180,7 +181,7 @@ class _AccountScreenState extends State<AccountScreen> {
               profile.email,
               style: GoogleFonts.poppins(
                 fontSize: 12,
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -201,7 +202,7 @@ class _AccountScreenState extends State<AccountScreen> {
         children: [
           CircleAvatar(
             radius: 40,
-            backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+            backgroundColor: AppColors.primaryColor.withValues(alpha: 0.1),
             child: Text(
               _getInitials(profile.username),
               style: GoogleFonts.poppins(
@@ -232,7 +233,7 @@ class _AccountScreenState extends State<AccountScreen> {
                   profile.email,
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -262,41 +263,25 @@ class _AccountScreenState extends State<AccountScreen> {
         style: GoogleFonts.poppins(
           fontSize: 18,
           fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
         ),
       ),
     );
   }
 
   void _showLogoutDialog(BuildContext context) {
-    showDialog(
+    AppDialogs.showConfirmation(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog.adaptive(
-          title: Text(AppLocalizations.getString(context, 'settings.logOut')),
-          content: Text(
-              AppLocalizations.getString(context, 'settings.logoutMessage')),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(AppLocalizations.getString(context, 'common.cancel')),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                context.read<AuthBloc>().add(SignOutEvent());
-              },
-              child: Text(
-                AppLocalizations.getString(context, 'settings.logOut'),
-                style: const TextStyle(color: Colors.red),
-              ),
-            ),
-          ],
-        );
+      title: AppLocalizations.getString(context, 'settings.logOut'),
+      message: AppLocalizations.getString(context, 'settings.logoutMessage'),
+      confirmText: AppLocalizations.getString(context, 'settings.logOut'),
+      cancelText: AppLocalizations.getString(context, 'common.cancel'),
+      destructive: true,
+      onConfirm: () {
+        Navigator.of(context).pop();
+        context.read<AuthBloc>().add(SignOutEvent());
       },
+      onCancel: () => Navigator.of(context).pop(),
     );
   }
 
@@ -350,7 +335,6 @@ class _AccountScreenState extends State<AccountScreen> {
       ),
     );
   }
-
 }
 
 class _LoadingView extends StatelessWidget {

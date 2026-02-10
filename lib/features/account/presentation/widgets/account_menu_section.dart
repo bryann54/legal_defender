@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:legal_defender/common/res/l10n.dart';
+import 'package:legal_defender/common/res/colors.dart';
+import 'package:legal_defender/common/widgets/drop_down_field.dart';
 import 'package:legal_defender/features/account/presentation/bloc/account_bloc.dart';
 import 'package:legal_defender/features/account/presentation/widgets/menu_item_tile.dart';
 
@@ -16,13 +18,15 @@ class AccountMenuSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Theme.of(context).dividerColor.withOpacity(0.1),
+          color: theme.dividerColor.withValues(alpha: 0.1),
         ),
       ),
       child: Column(
@@ -37,14 +41,7 @@ class AccountMenuSection extends StatelessWidget {
             },
           ),
           _buildDivider(context),
-          MenuItemTile(
-            icon: Icons.tune_outlined,
-            title: AppLocalizations.getString(context, 'profile.preferences'),
-            subtitle:
-                AppLocalizations.getString(context, 'profile.preferences'),
-            trailing: _buildLanguageSelector(context),
-            onTap: null,
-          ),
+          _buildLanguageSelector(context),
           _buildDivider(context),
           MenuItemTile(
             icon: Icons.payment_outlined,
@@ -70,8 +67,8 @@ class AccountMenuSection extends StatelessWidget {
             icon: Icons.notifications_outlined,
             title:
                 AppLocalizations.getString(context, 'settings.notifications'),
-            subtitle:
-                AppLocalizations.getString(context, 'settings.notifications'),
+            subtitle: AppLocalizations.getString(
+                context, 'settings.alertPreferences'),
             onTap: () {
               // Navigate to notifications settings
             },
@@ -85,52 +82,87 @@ class AccountMenuSection extends StatelessWidget {
     return Divider(
       height: 1,
       indent: 60,
-      color: Theme.of(context).dividerColor.withOpacity(0.1),
+      color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
     );
   }
 
   Widget _buildLanguageSelector(BuildContext context) {
-    return DropdownButton<Locale>(
-      value: currentLocale,
-      underline: const SizedBox.shrink(),
-      icon: const Icon(Icons.keyboard_arrow_down, size: 20),
-      items: [
-        DropdownMenuItem(
-          value: const Locale('en'),
-          child: Row(
-            children: [
-              Text( '🇺🇸', style: const TextStyle(fontSize: 16)),
-              Text(
-                AppLocalizations.getString(context, 'language.english'),
-              ),
-            ],
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final primaryColor =
+        isDark ? AppColors.primaryColorDark : AppColors.primaryColor;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: primaryColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.language,
+              size: 20,
+              color: primaryColor,
+            ),
           ),
-        ),
-        
-        DropdownMenuItem(
-          value: const Locale('es'),
-          child: Row(
-            children: [
-              Text( '🇪🇸', style: const TextStyle(fontSize: 16)),
-              Text(
-                AppLocalizations.getString(context, 'language.spanish'),
-              ),
-            ],
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.getString(context, 'settings.language'),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  AppLocalizations.getString(
+                      context, 'settings.changeLanguage'),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
-      onChanged: state.status == AccountStatus.updating
-          ? null
-          : (locale) {
-              if (locale != null) {
-                // Your original logic - sends ChangeLanguageEvent to AccountBloc
-                context.read<AccountBloc>().add(
-                      ChangeLanguageEvent(langCode: locale.languageCode),
-                    );
-              }
-            },
+          const SizedBox(width: 12),
+          SizedBox(
+            width: 120,
+            child: DropDownWidget<Locale>(
+              label: '',
+              selectedItem: currentLocale,
+              items: DropDownWidget.languageItems(context),
+              onChanged: state.status == AccountStatus.updating
+                  ? null
+                  : (locale) {
+                      if (locale != null) {
+                        context.read<AccountBloc>().add(
+                              ChangeLanguageEvent(
+                                  langCode: locale.languageCode),
+                            );
+                      }
+                    },
+              hintText: AppLocalizations.getString(
+                  context, 'language.selectLanguage'),
+              isEnabled: state.status != AccountStatus.updating,
+              showLabel: false,
+              filled: false,
+              isDense: true,
+              borderRadius: 8,
+              borderColor: Colors.transparent,
+              padding: EdgeInsets.zero,
+            ),
+          ),
+        ],
+      ),
     );
   }
-
-
 }

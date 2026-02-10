@@ -45,7 +45,7 @@ class CustomAppBar extends StatelessWidget {
           leading:
               !isHome ? const AutoLeadingButton(color: Colors.white) : null,
           backgroundColor: isDark
-              ? AppColors.primaryColor.withOpacity(0.95)
+              ? AppColors.primaryColor.withValues(alpha: 0.95)
               : AppColors.primaryColor,
           flexibleSpace: LayoutBuilder(
             builder: (context, constraints) {
@@ -163,12 +163,12 @@ class AppBarBackground extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: isDark
               ? [
-                  AppColors.primaryColor.withOpacity(0.9),
-                  AppColors.primaryColor.withOpacity(0.7),
+                  AppColors.primaryColor.withValues(alpha: 0.9),
+                  AppColors.primaryColor.withValues(alpha: 0.7),
                 ]
               : [
                   AppColors.primaryColor,
-                  AppColors.primaryColor.withOpacity(0.85),
+                  AppColors.primaryColor.withValues(alpha: 0.85),
                 ],
         ),
       ),
@@ -234,7 +234,7 @@ class GreetingText extends StatelessWidget {
         Text(
           AppLocalizations.getString(context, 'dashboard.hi'),
           style: GoogleFonts.acme(
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha: 0.9),
             fontSize: 16,
           ),
         ),
@@ -273,13 +273,13 @@ class LocationIndicator extends StatelessWidget {
         Icon(
           Icons.location_on_outlined,
           size: 16,
-          color: Colors.white.withOpacity(0.8),
+          color: Colors.white.withValues(alpha: 0.8),
         ),
         const SizedBox(width: 4),
         Text(
           displayState,
           style: GoogleFonts.inter(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
@@ -302,10 +302,10 @@ class NotificationButton extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
+              color: Colors.white.withValues(alpha: 0.15),
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),

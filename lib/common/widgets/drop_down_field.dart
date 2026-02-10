@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:legal_defender/common/res/l10n.dart';
-import 'package:legal_defender/common/res/colors.dart';
+import 'package:legal_defender/core/theme/app_colors_extension.dart';
 
 class DropDownWidget<T> extends StatelessWidget {
   final String label;
   final T? selectedItem;
   final List<DropdownMenuItem<T>> items;
-  final Function(T?) onChanged;
+  final ValueChanged<T?>? onChanged;
   final String? hintText;
   final String? errorText;
   final bool isRequired;
@@ -26,7 +26,6 @@ class DropDownWidget<T> extends StatelessWidget {
   final bool filled;
   final bool isDense;
   final double? contentPadding;
-  final String? Function(T?)? onValidationError;
   final AutovalidateMode? autovalidateMode;
 
   const DropDownWidget({
@@ -54,14 +53,13 @@ class DropDownWidget<T> extends StatelessWidget {
     this.filled = false,
     this.isDense = false,
     this.contentPadding,
-    this.onValidationError,
     this.autovalidateMode,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = AppColors.of(context);
+    final appColors = Theme.of(context).extension<AppColorsExtension>();
 
     return Padding(
       padding: padding ?? const EdgeInsets.symmetric(vertical: 8.0),
@@ -79,7 +77,8 @@ class DropDownWidget<T> extends StatelessWidget {
                       style: labelStyle ??
                           theme.textTheme.labelMedium?.copyWith(
                             fontWeight: FontWeight.w500,
-                            color: theme.colorScheme.onSurface,
+                            color: appColors?.textPrimary ??
+                                theme.colorScheme.onSurface,
                           ),
                     ),
                     if (isRequired)
@@ -101,14 +100,15 @@ class DropDownWidget<T> extends StatelessWidget {
             icon: suffixIcon ??
                 Icon(
                   Icons.keyboard_arrow_down_rounded,
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  color: theme.colorScheme.onSurface.withValues(alpha: .6),
                   size: 24,
                 ),
             decoration: InputDecoration(
               hintText: hintText ??
                   AppLocalizations.getString(context, 'common.select'),
               hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                color: appColors?.textSecondary.withValues(alpha: 0.5) ??
+                    theme.colorScheme.onSurface.withValues(alpha: 0.5),
               ),
               errorText: errorText,
               errorStyle: theme.textTheme.labelSmall?.copyWith(
@@ -116,7 +116,9 @@ class DropDownWidget<T> extends StatelessWidget {
                 height: 1.2,
               ),
               filled: filled,
-              fillColor: filledColor ?? theme.colorScheme.surface,
+              fillColor: filledColor ??
+                  appColors?.surface ??
+                  theme.colorScheme.surface,
               contentPadding: EdgeInsets.symmetric(
                 horizontal: prefixIcon != null ? 12 : 16,
                 vertical: contentPadding ?? (isDense ? 12 : 16),
@@ -126,9 +128,9 @@ class DropDownWidget<T> extends StatelessWidget {
                 minWidth: 48,
                 minHeight: 24,
               ),
-              border: _buildBorder(theme, colors, false),
-              enabledBorder: _buildBorder(theme, colors, false),
-              focusedBorder: _buildBorder(theme, colors, true),
+              border: _buildBorder(theme, appColors, false),
+              enabledBorder: _buildBorder(theme, appColors, false),
+              focusedBorder: _buildBorder(theme, appColors, true),
               errorBorder: showErrorBorder
                   ? OutlineInputBorder(
                       borderRadius: BorderRadius.circular(borderRadius ?? 12),
@@ -158,10 +160,11 @@ class DropDownWidget<T> extends StatelessWidget {
             style: textStyle ??
                 theme.textTheme.bodyMedium?.copyWith(
                   color: isEnabled
-                      ? theme.colorScheme.onSurface
-                      : theme.colorScheme.onSurface.withOpacity(0.5),
+                      ? appColors?.textPrimary ?? theme.colorScheme.onSurface
+                      : (appColors?.textPrimary ?? theme.colorScheme.onSurface)
+                          .withValues(alpha: 0.5),
                 ),
-            dropdownColor: theme.colorScheme.surface,
+            dropdownColor: appColors?.surface ?? theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(borderRadius ?? 12),
             menuMaxHeight: 300,
             selectedItemBuilder: (context) {
@@ -173,7 +176,8 @@ class DropDownWidget<T> extends StatelessWidget {
                     item.value?.toString() ?? '',
                     style: textStyle ??
                         theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface,
+                          color: appColors?.textPrimary ??
+                              theme.colorScheme.onSurface,
                           fontWeight: FontWeight.w500,
                         ),
                     maxLines: 1,
@@ -186,22 +190,24 @@ class DropDownWidget<T> extends StatelessWidget {
             validator: validator,
             autovalidateMode: autovalidateMode,
             onChanged: isEnabled ? onChanged : null,
-            onSaved: isEnabled ? onChanged : null,
           ),
         ],
       ),
     );
   }
 
-  InputBorder? _buildBorder(ThemeData theme, AppColors colors, bool isFocused) {
+  InputBorder? _buildBorder(
+      ThemeData theme, AppColorsExtension? appColors, bool isFocused) {
     if (!showBorder) return InputBorder.none;
+
+    final defaultBorderColor = appColors?.divider ?? theme.dividerColor;
 
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(borderRadius ?? 12),
       borderSide: BorderSide(
         color: isFocused
             ? theme.colorScheme.primary
-            : borderColor ?? theme.dividerColor,
+            : borderColor ?? defaultBorderColor,
         width: isFocused ? 1.5 : 1,
       ),
     );
