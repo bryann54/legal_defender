@@ -25,7 +25,6 @@ class AuthRepositoryImpl implements AuthRepository {
       String email, String password) async {
     try {
       final userModel = await _remote.login(email, password);
-      // Backend returns tokens inside the user model or response
       await _local.saveTokens(access: '...', refresh: '...');
       await _local.saveUser(userModel);
       return Right(userModel.toEntity());

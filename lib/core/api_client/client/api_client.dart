@@ -11,6 +11,10 @@ import 'package:legal_defender/core/errors/exceptions.dart';
 class ApiClient {
   final Dio _dio;
 
+  // Static helpers to fix the "getter not defined" error
+  static Options get protected => Options(headers: {'requiresToken': true});
+  static Options get open => Options(headers: {'requiresToken': false});
+
   ApiClient(
     @Named('BaseUrl') String baseUrl,
     AuthInterceptor authInterceptor,
@@ -28,7 +32,44 @@ class ApiClient {
     ]);
   }
 
-  Dio get dio => _dio;
+  // GET
+  Future<T> get<T>({
+    required String url,
+    Map<String, dynamic>? query,
+    Options? options,
+  }) =>
+      _request(() => _dio.get(url, queryParameters: query, options: options));
+
+  // POST
+  Future<T> post<T>({
+    required String url,
+    dynamic payload,
+    Options? options,
+  }) =>
+      _request(() => _dio.post(url, data: payload, options: options));
+
+  // PATCH (Added)
+  Future<T> patch<T>({
+    required String url,
+    dynamic payload,
+    Options? options,
+  }) =>
+      _request(() => _dio.patch(url, data: payload, options: options));
+
+  // PUT
+  Future<T> put<T>({
+    required String url,
+    dynamic payload,
+    Options? options,
+  }) =>
+      _request(() => _dio.put(url, data: payload, options: options));
+
+  // DELETE
+  Future<T> delete<T>({
+    required String url,
+    Options? options,
+  }) =>
+      _request(() => _dio.delete(url, options: options));
 
   Future<T> _request<T>(Future<Response> Function() apiCall) async {
     try {
@@ -39,48 +80,20 @@ class ApiClient {
     }
   }
 
-  Future<T> get<T>(
-          {required String url,
-          Map<String, dynamic>? query,
-          Options? options}) =>
-      _request<T>(
-          () => _dio.get(url, queryParameters: query, options: options));
-
-  Future<T> post<T>({required String url, dynamic payload, Options? options}) =>
-      _request<T>(() => _dio.post(url, data: payload, options: options));
-
-  Future<T> put<T>({required String url, dynamic payload, Options? options}) =>
-      _request<T>(() => _dio.put(url, data: payload, options: options));
-
-  Future<T> patch<T>(
-          {required String url, dynamic payload, Options? options}) =>
-      _request<T>(() => _dio.patch(url, data: payload, options: options));
-
-  Future<void> delete({required String url, Options? options}) async {
-    try {
-      await _dio.delete(url, options: options);
-    } on DioException catch (e) {
-      throw _handleDioError(e);
-    }
-  }
-
   Exception _handleDioError(DioException e) {
-    if (e.response != null) {
-      final data = e.response?.data;
-      final message = data is Map ? (data['message'] ?? data['detail']) : null;
+    final data = e.response?.data;
+    final message = data is Map ? (data['message'] ?? data['detail']) : null;
 
-      return switch (e.response?.statusCode) {
-        400 => ValidationException(message ?? 'Validation error'),
-        401 => UnauthorizedException(message ?? 'Unauthorized'),
-        404 => NotFoundException(message ?? 'Resource not found'),
-        500 || 502 || 503 => ServerException(message ?? 'Server error'),
-        _ => ServerException('Unexpected error: ${e.response?.statusCode}'),
-      };
+    if (e.type == DioExceptionType.connectionError ||
+        e.type == DioExceptionType.connectionTimeout) {
+      return NetworkException('Check your internet connection');
     }
 
-    if (e.type == DioExceptionType.connectionError) {
-      return NetworkException('No internet');
-    }
-    return ServerException(e.message);
+    return switch (e.response?.statusCode) {
+      400 => ValidationException(message ?? 'Invalid request'),
+      401 => UnauthorizedException(message ?? 'Session expired'),
+      404 => NotFoundException(message ?? 'Not found'),
+      _ => ServerException(message ?? 'Something went wrong'),
+    };
   }
 }

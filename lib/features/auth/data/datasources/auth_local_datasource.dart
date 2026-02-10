@@ -7,7 +7,7 @@ import 'package:injectable/injectable.dart';
 import 'package:legal_defender/features/auth/data/models/user_model.dart';
 
 abstract class AuthLocalDataSource {
-  // The stream the repository will listen to
+  /// The stream the repository will listen to
   Stream<UserModel?> get userStream;
 
   Future<void> saveTokens({required String access, required String refresh});
@@ -16,6 +16,9 @@ abstract class AuthLocalDataSource {
   Future<String?> getRefreshToken();
   Future<UserModel?> getUser();
   Future<void> clearAuthData();
+
+  /// Dispose method for cleanup
+  void dispose();
 }
 
 @LazySingleton(as: AuthLocalDataSource)
@@ -40,8 +43,10 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Stream<UserModel?> get userStream => _userStreamController.stream;
 
   @override
-  Future<void> saveTokens(
-      {required String access, required String refresh}) async {
+  Future<void> saveTokens({
+    required String access,
+    required String refresh,
+  }) async {
     await _secure.write(key: 'accessToken', value: access);
     await _secure.write(key: 'refreshToken', value: refresh);
   }
@@ -57,7 +62,13 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<UserModel?> getUser() async {
     final data = await _secure.read(key: _userKey);
     if (data == null) return null;
-    return UserModel.fromJson(jsonDecode(data));
+    try {
+      return UserModel.fromJson(jsonDecode(data));
+    } catch (e) {
+      // If parsing fails, clear corrupted data
+      await _secure.delete(key: _userKey);
+      return null;
+    }
   }
 
   @override
@@ -73,7 +84,8 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<String?> getRefreshToken() => _secure.read(key: 'refreshToken');
 
-  // Clean up the controller when the app disposes of this singleton
+  /// Clean up the controller when the app disposes of this singleton
+  @override
   @disposeMethod
   void dispose() {
     _userStreamController.close();

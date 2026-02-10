@@ -4,10 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 @lazySingleton
 class SharedPreferencesManager {
   final SharedPreferences _sharedPreferences;
-
-  static String favourites = 'favourites';
+  static const String keyAccessToken = 'accessToken';
+  static const String firebaseToken = 'firebaseToken';
+  static const String keyIsLogin = 'isLogin';
+  static const String user = 'user';
+  static const addresses = 'addresses';
   static String language = 'language';
-
   SharedPreferencesManager(this._sharedPreferences);
 
   Future<bool> putBool(String key, bool value) =>

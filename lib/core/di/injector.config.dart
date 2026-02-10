@@ -9,7 +9,6 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:dio/dio.dart' as _i361;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart' as _i558;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
@@ -17,12 +16,20 @@ import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 import '../../features/account/data/datasources/account_local_datasource.dart'
     as _i29;
+import '../../features/account/data/datasources/account_remote_datasource.dart'
+    as _i302;
 import '../../features/account/data/repositories/account_repository_impl.dart'
     as _i857;
 import '../../features/account/domain/repositories/account_repository.dart'
     as _i1067;
 import '../../features/account/domain/usecases/change_language_usecase.dart'
     as _i993;
+import '../../features/account/domain/usecases/delete_account_usecase.dart'
+    as _i949;
+import '../../features/account/domain/usecases/get_profile_usecase.dart'
+    as _i682;
+import '../../features/account/domain/usecases/update_profile_usecase.dart'
+    as _i23;
 import '../../features/account/presentation/bloc/account_bloc.dart' as _i708;
 import '../../features/auth/data/datasources/auth_local_datasource.dart'
     as _i992;
@@ -51,13 +58,14 @@ extension GetItInjectableX on _i174.GetIt {
     );
     final registerModules = _$RegisterModules();
     await gh.factoryAsync<_i460.SharedPreferences>(
-      () => registerModules.prefs(),
+      () => registerModules.prefs,
       preResolve: true,
     );
     gh.lazySingleton<_i558.FlutterSecureStorage>(
         () => registerModules.secureStorage);
     gh.lazySingleton<_i992.AuthLocalDataSource>(
       () => _i992.AuthLocalDataSourceImpl(gh<_i558.FlutterSecureStorage>()),
+      dispose: (i) => i.dispose(),
     );
     gh.factory<String>(
       () => registerModules.baseUrl,
@@ -65,32 +73,46 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i934.SharedPreferencesManager>(
         () => _i934.SharedPreferencesManager(gh<_i460.SharedPreferences>()));
-    gh.lazySingleton<_i29.AccountLocalDatasource>(() =>
-        _i29.AccountLocalDatasource(gh<_i934.SharedPreferencesManager>()));
-    gh.lazySingleton<_i361.Dio>(
-      () => registerModules.dio(gh<String>(instanceName: 'BaseUrl')),
-      instanceName: 'base_dio',
-    );
+    gh.lazySingleton<_i29.AccountLocalDatasource>(
+        () => _i29.AccountLocalDatasource(
+              gh<_i934.SharedPreferencesManager>(),
+              gh<_i558.FlutterSecureStorage>(),
+            ));
     gh.lazySingleton<_i878.AuthInterceptor>(() => _i878.AuthInterceptor(
           gh<_i992.AuthLocalDataSource>(),
-          gh<_i361.Dio>(instanceName: 'base_dio'),
+          gh<String>(instanceName: 'BaseUrl'),
         ));
-    gh.lazySingleton<_i1067.AccountRepository>(
-        () => _i857.AccountRepositoryImpl(gh<_i29.AccountLocalDatasource>()));
     gh.lazySingleton<_i671.ApiClient>(() => _i671.ApiClient(
           gh<String>(instanceName: 'BaseUrl'),
           gh<_i878.AuthInterceptor>(),
         ));
+    gh.lazySingleton<_i302.AccountRemoteDataSource>(
+        () => _i302.AccountRemoteDataSourceImpl(gh<_i671.ApiClient>()));
+    gh.lazySingleton<_i1067.AccountRepository>(
+        () => _i857.AccountRepositoryImpl(
+              gh<_i302.AccountRemoteDataSource>(),
+              gh<_i29.AccountLocalDatasource>(),
+            ));
     gh.lazySingleton<_i161.AuthRemoteDataSource>(
         () => _i161.AuthRemoteDataSourceImpl(gh<_i671.ApiClient>()));
-    gh.lazySingleton<_i993.ChangeLanguageUsecase>(
-        () => _i993.ChangeLanguageUsecase(gh<_i1067.AccountRepository>()));
     gh.lazySingleton<_i626.AuthRepository>(() => _i153.AuthRepositoryImpl(
           gh<_i161.AuthRemoteDataSource>(),
           gh<_i992.AuthLocalDataSource>(),
         ));
-    gh.factory<_i708.AccountBloc>(
-        () => _i708.AccountBloc(gh<_i993.ChangeLanguageUsecase>()));
+    gh.lazySingleton<_i23.UpdateProfileUsecase>(
+        () => _i23.UpdateProfileUsecase(gh<_i1067.AccountRepository>()));
+    gh.lazySingleton<_i993.ChangeLanguageUsecase>(
+        () => _i993.ChangeLanguageUsecase(gh<_i1067.AccountRepository>()));
+    gh.lazySingleton<_i682.GetProfileUsecase>(
+        () => _i682.GetProfileUsecase(gh<_i1067.AccountRepository>()));
+    gh.lazySingleton<_i949.DeleteAccountUsecase>(
+        () => _i949.DeleteAccountUsecase(gh<_i1067.AccountRepository>()));
+    gh.factory<_i708.AccountBloc>(() => _i708.AccountBloc(
+          gh<_i682.GetProfileUsecase>(),
+          gh<_i23.UpdateProfileUsecase>(),
+          gh<_i993.ChangeLanguageUsecase>(),
+          gh<_i949.DeleteAccountUsecase>(),
+        ));
     gh.lazySingleton<_i46.SignInUseCase>(
         () => _i46.SignInUseCase(gh<_i626.AuthRepository>()));
     gh.lazySingleton<_i46.SignUpUseCase>(

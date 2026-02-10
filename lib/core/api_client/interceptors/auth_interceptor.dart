@@ -9,32 +9,41 @@ import 'package:legal_defender/features/auth/data/datasources/auth_local_datasou
 @lazySingleton
 class AuthInterceptor extends Interceptor {
   final AuthLocalDataSource _localDataSource;
-  final Dio _dio;
+  final Dio _refreshDio;
 
   Completer<String?>? _refreshTokenCompleter;
 
   AuthInterceptor(
     this._localDataSource,
-    @Named('base_dio') this._dio,
-  );
+    @Named('BaseUrl') String baseUrl,
+  ) : _refreshDio = Dio(BaseOptions(baseUrl: baseUrl));
 
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
-    if (_isAuthEndpoint(options.path)) return handler.next(options);
+    // ApiClient.protected adds this header
+    final bool requiresToken = options.headers['requiresToken'] ?? true;
+
+    if (!requiresToken) {
+      options.headers.remove('requiresToken');
+      return handler.next(options);
+    }
 
     final accessToken = await _localDataSource.getAccessToken();
+
     if (accessToken != null) {
+      // Ensure 'Bearer ' has the space!
       options.headers['Authorization'] = 'Bearer $accessToken';
     }
+
+    options.headers.remove('requiresToken');
     return handler.next(options);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     if (err.response?.statusCode == 401) {
-      if (err.requestOptions.path.contains(ApiEndpoints.authRefresh) ||
-          _isAuthEndpoint(err.requestOptions.path)) {
+      if (err.requestOptions.path.contains(ApiEndpoints.authRefresh)) {
         await _localDataSource.clearAuthData();
         return handler.next(err);
       }
@@ -45,7 +54,6 @@ class AuthInterceptor extends Interceptor {
         return handler.resolve(await _retry(err.requestOptions, newToken));
       } else {
         await _localDataSource.clearAuthData();
-        return handler.next(err);
       }
     }
     return handler.next(err);
@@ -61,22 +69,19 @@ class AuthInterceptor extends Interceptor {
 
     try {
       final refreshToken = await _localDataSource.getRefreshToken();
-      if (refreshToken == null) throw Exception();
-
-      final response = await _dio.post(
+      if (refreshToken == null) throw Exception("No Refresh Token");
+      final response = await _refreshDio.post(
         ApiEndpoints.authRefresh,
         data: {'refresh': refreshToken},
       );
 
-      if (response.statusCode == 200) {
-        final access = response.data['access'] as String;
-        final refresh = response.data['refresh'] as String? ?? refreshToken;
+      final access = response.data['access'];
+      final refresh = response.data['refresh'] ?? refreshToken;
 
-        await _localDataSource.saveTokens(access: access, refresh: refresh);
-        _refreshTokenCompleter!.complete(access);
-        return access;
-      }
-      throw Exception();
+      await _localDataSource.saveTokens(access: access, refresh: refresh);
+
+      _refreshTokenCompleter!.complete(access);
+      return access;
     } catch (e) {
       _refreshTokenCompleter!.complete(null);
       return null;
@@ -87,22 +92,12 @@ class AuthInterceptor extends Interceptor {
     final options = Options(
       method: requestOptions.method,
       headers: {...requestOptions.headers, 'Authorization': 'Bearer $token'},
-      contentType: requestOptions.contentType,
-      responseType: requestOptions.responseType,
     );
-
-    return _dio.request(
+    return _refreshDio.request(
       requestOptions.path,
       data: requestOptions.data,
       queryParameters: requestOptions.queryParameters,
       options: options,
     );
-  }
-
-  bool _isAuthEndpoint(String path) {
-    return path.contains('/token/') ||
-        (path.contains('/users/') && !path.contains('/users/me')) ||
-        path.contains('/otp/') ||
-        path.contains('/password/');
   }
 }

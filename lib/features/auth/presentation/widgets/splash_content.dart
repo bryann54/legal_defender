@@ -84,7 +84,7 @@ class _SplashContentState extends State<SplashContent>
                 width: 230,
                 height: 250,
                 child: Image.asset(
-                  'assets/legal_logo.png',
+                  'assets/images/legal_logo.png',
                   // Production grade: always handle missing assets gracefully
                   errorBuilder: (context, error, stackTrace) => Icon(
                     Icons.gavel_rounded,

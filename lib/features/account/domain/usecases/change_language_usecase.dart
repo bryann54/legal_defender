@@ -6,12 +6,11 @@ import 'package:injectable/injectable.dart';
 
 @lazySingleton
 class ChangeLanguageUsecase implements UseCase<NoParams, String> {
-  final AccountRepository _repo;
-
-  ChangeLanguageUsecase(this._repo);
+  final AccountRepository _repository;
+  ChangeLanguageUsecase(this._repository);
 
   @override
   Future<Either<Failure, NoParams>> call(String params) async {
-    return await _repo.changeLanguage(params);
+    return await _repository.changeLanguage(params);
   }
 }

@@ -1,4 +1,4 @@
-// lib/features/auth/presentation/widgets/password_reset_dialog.dart
+// lib/features/account/presentation/widgets/password_reset_dialog.dart
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

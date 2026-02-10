@@ -27,7 +27,7 @@ class AuthHeader extends StatelessWidget {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
               image: const DecorationImage(
-                image: AssetImage('assets/legal_logo.png'),
+                image: AssetImage('assets/images/legal_logo.png'),
                 fit: BoxFit.cover,
               ),
             ),

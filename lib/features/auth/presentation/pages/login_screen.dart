@@ -3,11 +3,14 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:legal_defender/common/helpers/app_router.gr.dart';
+import 'package:legal_defender/common/res/l10n.dart';
 import 'package:legal_defender/common/utils/auth_controllers_manager.dart';
 import 'package:legal_defender/common/utils/auth_validators.dart';
 import 'package:legal_defender/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:legal_defender/features/auth/presentation/bloc/auth_event.dart';
 import 'package:legal_defender/features/auth/presentation/bloc/auth_state.dart';
+import 'package:legal_defender/features/auth/presentation/widgets/auth_bottom_bar.dart';
 import 'package:legal_defender/features/auth/presentation/widgets/auth_button.dart';
 import 'package:legal_defender/features/auth/presentation/widgets/auth_header.dart';
 import 'package:legal_defender/features/auth/presentation/widgets/auth_state_listener.dart';
@@ -60,19 +63,22 @@ class _LoginScreenState extends State<LoginScreen> {
               key: _manager.formKey,
               child: Column(
                 children: [
-                  const AuthHeader(
-                      title: 'Welcome Back', subtitle: 'Sign in to continue'),
+                  AuthHeader(
+                      title: AppLocalizations.getString(
+                          context, 'auth.welcomeBack'),
+                      subtitle:
+                          AppLocalizations.getString(context, 'auth.signIn')),
                   const SizedBox(height: 40),
                   AuthTextField(
                     controller: _manager.emailController,
-                    label: 'Email',
+                    label: AppLocalizations.getString(context, 'auth.email'),
                     icon: Icons.email_outlined,
                     validator: AuthValidators.validateEmail,
                   ),
                   const SizedBox(height: 16),
                   AuthTextField(
                     controller: _manager.passwordController,
-                    label: 'Password',
+                    label: AppLocalizations.getString(context, 'auth.password'),
                     isPassword: true,
                     icon: Icons.lock_outline,
                     isPasswordVisible: _isPasswordVisible,
@@ -85,7 +91,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
                       return AuthButton(
-                        text: 'Sign In',
+                        text: AppLocalizations.getString(
+                            context, 'auth.signInLink'),
                         heroTag: 'login_button',
                         isEnabled: _manager.canAttemptLogin &&
                             state.status != AuthStatus.loading,
@@ -99,6 +106,14 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         ),
+      ),
+      bottomNavigationBar: AuthBottomBar(
+        promptText: AppLocalizations.getString(context, 'auth.dontHaveAccount'),
+        actionText: AppLocalizations.getString(context, 'auth.signUpLink'),
+        onActionPressed: () {
+          context.router.push(const RegisterRoute());
+        },
+        heroTag: 'auth_toggle_button',
       ),
     );
   }
