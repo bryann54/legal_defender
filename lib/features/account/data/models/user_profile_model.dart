@@ -11,7 +11,7 @@ class UserProfileModel extends UserProfile {
   final String? phoneNumber;
 
   const UserProfileModel({
-    required super.id, 
+    required super.id,
     required super.email,
     required super.username,
     this.phoneNumber,

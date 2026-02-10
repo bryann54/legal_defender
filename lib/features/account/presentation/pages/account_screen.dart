@@ -1,17 +1,17 @@
-// lib/features/account/presentation/screens/account_screen.dart
-
 import 'package:auto_route/auto_route.dart';
-import 'package:legal_defender/common/notifiers/locale_provider.dart';
-import 'package:legal_defender/common/res/l10n.dart';
-import 'package:legal_defender/features/account/presentation/bloc/account_bloc.dart';
-import 'package:legal_defender/features/account/presentation/widgets/profile_info_card.dart';
-import 'package:legal_defender/features/account/presentation/widgets/profile_menu_item.dart';
-import 'package:legal_defender/features/auth/presentation/bloc/auth_bloc.dart';
-import 'package:legal_defender/features/auth/presentation/bloc/auth_event.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:legal_defender/common/notifiers/locale_provider.dart';
+import 'package:legal_defender/common/res/l10n.dart';
+import 'package:legal_defender/common/res/colors.dart';
+import 'package:legal_defender/features/account/presentation/bloc/account_bloc.dart';
+import 'package:legal_defender/features/account/domain/entities/user_profile.dart';
+import 'package:legal_defender/features/account/presentation/widgets/account_menu_section.dart';
+import 'package:legal_defender/features/account/presentation/widgets/support_menu_section.dart';
+import 'package:legal_defender/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:legal_defender/features/auth/presentation/bloc/auth_event.dart';
 
 @RoutePage()
 class AccountScreen extends StatefulWidget {
@@ -25,7 +25,6 @@ class _AccountScreenState extends State<AccountScreen> {
   @override
   void initState() {
     super.initState();
-    // Fetch profile data when screen opens
     context.read<AccountBloc>().add(const FetchProfileEvent());
   }
 
@@ -37,121 +36,35 @@ class _AccountScreenState extends State<AccountScreen> {
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: BlocListener<AccountBloc, AccountState>(
-        listener: (context, state) {
-          // Handle language changes
-          if (state.currentLang != localeProvider.locale.languageCode) {
-            localeProvider.setLocale(Locale(state.currentLang));
-          }
-
-          // Handle success messages
-          if (state.successMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.successMessage!),
-                backgroundColor: Colors.green,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-            // Clear message after showing
-            context.read<AccountBloc>().add(const ClearErrorEvent());
-          }
-
-          // Handle error messages
-          if (state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage!),
-                backgroundColor: Colors.redAccent,
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                action: SnackBarAction(
-                  label: 'Retry',
-                  textColor: Colors.white,
-                  onPressed: () {
-                    context.read<AccountBloc>().add(const FetchProfileEvent());
-                  },
-                ),
-                duration: const Duration(seconds: 4),
-              ),
-            );
-            // Clear error after showing
-            context.read<AccountBloc>().add(const ClearErrorEvent());
-          }
-
-          // Handle account deletion
-          if (state.status == AccountStatus.deleted) {
-            // Sign out user
-            context.read<AuthBloc>().add(const SignOutEvent());
-            // Navigate to login
-            // context.router.replaceAll([const LoginRoute()]);
-          }
-        },
+        listener: (context, state) =>
+            _handleStateChanges(context, state, localeProvider),
         child: BlocBuilder<AccountBloc, AccountState>(
           builder: (context, state) {
-            // Loading state (initial load)
             if (state.status == AccountStatus.loading &&
                 state.profile == null) {
-              return const Center(
-                child: CircularProgressIndicator.adaptive(),
-              );
+              return const _LoadingView();
             }
 
-            // Error state (initial load failed)
             if (state.status == AccountStatus.error && state.profile == null) {
-              return _buildErrorView(context);
+              return _ErrorView(
+                onRetry: () =>
+                    context.read<AccountBloc>().add(const FetchProfileEvent()),
+              );
             }
 
             return RefreshIndicator(
               onRefresh: () async {
                 context.read<AccountBloc>().add(const FetchProfileEvent());
-                // Wait for loading to finish
                 await Future.delayed(const Duration(milliseconds: 500));
               },
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
-                  // App Bar
-                  _buildAppBar(context, theme),
-
-                  // Content
-                  SliverPadding(
-                    padding: const EdgeInsets.all(16.0),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate([
-                        // Profile Header Card
-                        if (state.profile != null)
-                          ProfileInfoCard(profile: state.profile!),
-
-                        const SizedBox(height: 24),
-
-                        // Account Settings Section
-                        _buildSectionTitle(
-                          context,
-                          AppLocalizations.getString(context, 'settings.title'),
-                        ),
-                        const SizedBox(height: 12),
-                        _buildSettingsCard(
-                            context, state, localeProvider.locale),
-
-                        const SizedBox(height: 24),
-
-                        // Actions Section
-                        _buildSectionTitle(
-                          context,
-                          'Actions',
-                        ),
-                        const SizedBox(height: 12),
-                        _buildActionsCard(context),
-
-                        const SizedBox(height: 32),
-                      ]),
-                    ),
+                  if (state.profile != null)
+                    _buildSliverAppBar(context, state.profile!, theme),
+                  SliverToBoxAdapter(
+                    child: _buildMenuSections(
+                        context, state, localeProvider.locale),
                   ),
                 ],
               ),
@@ -162,206 +75,195 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  Widget _buildAppBar(BuildContext context, ThemeData theme) {
+  Widget _buildMenuSections(
+      BuildContext context, AccountState state, Locale currentLocale) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionLabel(
+            context, AppLocalizations.getString(context, 'profile.account')),
+        AccountMenuSection(
+          state: state,
+          currentLocale: currentLocale,
+        ),
+        const SizedBox(height: 24),
+        _buildSectionLabel(
+            context, AppLocalizations.getString(context, 'profile.getHelp')),
+        const SupportMenuSection(),
+        const SizedBox(height: 32),
+      ],
+    );
+  }
+
+  Widget _buildSliverAppBar(
+      BuildContext context, UserProfile profile, ThemeData theme) {
     return SliverAppBar(
-      expandedHeight: 120,
+      expandedHeight: 200,
       floating: false,
       pinned: true,
-      backgroundColor: theme.primaryColor,
-      flexibleSpace: FlexibleSpaceBar(
-        title: Text(
-          AppLocalizations.getString(context, 'profile.title'),
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.w600,
-            color: Colors.white,
+      backgroundColor: theme.scaffoldBackgroundColor,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      leading: const SizedBox.shrink(),
+      leadingWidth: 0,
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: IconButton(
+            onPressed: () => _showLogoutDialog(context),
+            icon: const Icon(Icons.logout),
+            color: Colors.red,
+            tooltip: AppLocalizations.getString(context, 'settings.logOut'),
           ),
         ),
-        centerTitle: false,
+      ],
+      flexibleSpace: LayoutBuilder(
+        builder: (context, constraints) {
+          final double appBarHeight = constraints.biggest.height;
+          final double expandedHeight = 150;
+          final double collapsedHeight =
+              kToolbarHeight + MediaQuery.of(context).padding.top;
+
+          // Calculate progress from 0 (expanded) to 1 (collapsed)
+          final double progress = ((appBarHeight - expandedHeight) /
+                  (collapsedHeight - expandedHeight))
+              .clamp(0.0, 1.0);
+
+          return FlexibleSpaceBar(
+            titlePadding: EdgeInsets.only(
+              left: 16,
+              bottom: 16,
+            ),
+            title: Opacity(
+              opacity: progress, // Only show title when collapsing
+              child: _buildCollapsedTitle(context, profile, theme),
+            ),
+            background: _buildExpandedHeader(context, profile, theme),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildErrorView(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildCollapsedTitle(
+      BuildContext context, UserProfile profile, ThemeData theme) {
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 16,
+          backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+          child: Text(
+            _getInitials(profile.username),
+            style: GoogleFonts.poppins(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primaryColor,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.red.shade300,
-            ),
-            const SizedBox(height: 16),
             Text(
-              'Failed to load profile',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Please check your connection and try again',
-              textAlign: TextAlign.center,
+              profile.username,
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.grey,
+                fontWeight: FontWeight.w600,
+                color: theme.colorScheme.onSurface,
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () {
-                context.read<AccountBloc>().add(const FetchProfileEvent());
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 12,
-                ),
+            Text(
+              profile.email,
+              style: GoogleFonts.poppins(
+                fontSize: 12,
+                color: theme.colorScheme.onSurface.withOpacity(0.6),
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildSectionTitle(BuildContext context, String title) {
-    return Text(
-      title,
-      style: GoogleFonts.poppins(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-      ),
-    );
-  }
-
-  Widget _buildSettingsCard(
-    BuildContext context,
-    AccountState state,
-    Locale currentLocale,
-  ) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: Theme.of(context).dividerColor.withOpacity(0.1),
-        ),
-      ),
-      child: Column(
+  Widget _buildExpandedHeader(
+      BuildContext context, UserProfile profile, ThemeData theme) {
+    return Container(
+      color: theme.scaffoldBackgroundColor,
+      padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Language Setting
-          ProfileMenuItem(
-            icon: Icons.language,
-            title: AppLocalizations.getString(context, 'settings.language'),
-            trailing: DropdownButton<Locale>(
-              value: currentLocale,
-              underline: const SizedBox(),
-              borderRadius: BorderRadius.circular(12),
-              items: [
-                DropdownMenuItem(
-                  value: const Locale('en'),
-                  child: Text(
-                    AppLocalizations.getString(context, 'language.english'),
-                  ),
-                ),
-                DropdownMenuItem(
-                  value: const Locale('es'),
-                  child: Text(
-                    AppLocalizations.getString(context, 'language.spanish'),
-                  ),
-                ),
-              ],
-              onChanged: state.status == AccountStatus.updating
-                  ? null
-                  : (locale) {
-                      if (locale != null) {
-                        context.read<AccountBloc>().add(
-                              ChangeLanguageEvent(
-                                langCode: locale.languageCode,
-                              ),
-                            );
-                      }
-                    },
+          CircleAvatar(
+            radius: 40,
+            backgroundColor: AppColors.primaryColor.withOpacity(0.1),
+            child: Text(
+              _getInitials(profile.username),
+              style: GoogleFonts.poppins(
+                fontSize: 28,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primaryColor,
+              ),
             ),
           ),
-
-          Divider(height: 1, color: Theme.of(context).dividerColor),
-
-          // Edit Profile
-          ProfileMenuItem(
-            icon: Icons.edit_outlined,
-            title: AppLocalizations.getString(context, 'profile.editProfile'),
-            onTap: () {
-              // Navigate to edit profile screen
-              // context.router.push(const EditProfileRoute());
-            },
-          ),
-
-          Divider(height: 1, color: Theme.of(context).dividerColor),
-
-          // Notifications
-          ProfileMenuItem(
-            icon: Icons.notifications_outlined,
-            title:
-                AppLocalizations.getString(context, 'settings.notifications'),
-            onTap: () {
-              // Navigate to notifications settings
-            },
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  profile.username,
+                  style: GoogleFonts.poppins(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  profile.email,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActionsCard(BuildContext context) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: Theme.of(context).dividerColor.withOpacity(0.1),
+  String _getInitials(String username) {
+    if (username.isEmpty) return '?';
+    final parts = username.trim().split(' ');
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}'.toUpperCase();
+    }
+    return username.substring(0, 1).toUpperCase();
+  }
+
+  Widget _buildSectionLabel(BuildContext context, String label) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+      child: Text(
+        label,
+        style: GoogleFonts.poppins(
+          fontSize: 18,
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
         ),
-      ),
-      child: Column(
-        children: [
-          // Change Password
-          ProfileMenuItem(
-            icon: Icons.lock_outline,
-            title: 'Change Password',
-            onTap: () {
-              // Show password change dialog
-              // showPasswordChangeDialog(context);
-            },
-          ),
-
-          Divider(height: 1, color: Theme.of(context).dividerColor),
-
-          // Delete Account
-          ProfileMenuItem(
-            icon: Icons.delete_outline,
-            title: 'Delete Account',
-            iconColor: Colors.red,
-            titleColor: Colors.red,
-            onTap: () => _showDeleteAccountDialog(context),
-          ),
-
-          Divider(height: 1, color: Theme.of(context).dividerColor),
-
-          // Logout
-          ProfileMenuItem(
-            icon: Icons.logout,
-            title: AppLocalizations.getString(context, 'settings.logOut'),
-            iconColor: Colors.red,
-            titleColor: Colors.red,
-            onTap: () => _showLogoutDialog(context),
-          ),
-        ],
       ),
     );
   }
@@ -369,58 +271,118 @@ class _AccountScreenState extends State<AccountScreen> {
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure you want to logout?'),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+      builder: (BuildContext context) {
+        return AlertDialog.adaptive(
+          title: Text(AppLocalizations.getString(context, 'settings.logOut')),
+          content: Text(
+              AppLocalizations.getString(context, 'settings.logoutMessage')),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              context.read<AuthBloc>().add(const SignOutEvent());
-            },
-            child: const Text(
-              'Logout',
-              style: TextStyle(color: Colors.red),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(AppLocalizations.getString(context, 'common.cancel')),
             ),
-          ),
-        ],
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                context.read<AuthBloc>().add(SignOutEvent());
+              },
+              child: Text(
+                AppLocalizations.getString(context, 'settings.logOut'),
+                style: const TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleStateChanges(
+      BuildContext context, AccountState state, LocaleProvider localeProvider) {
+    if (state.currentLang != localeProvider.locale.languageCode) {
+      localeProvider.setLocale(Locale(state.currentLang));
+    }
+
+    if (state.successMessage != null) {
+      _showSuccessMessage(context, state.successMessage!);
+      context.read<AccountBloc>().add(const ClearErrorEvent());
+    }
+
+    if (state.errorMessage != null) {
+      _showErrorMessage(context, state.errorMessage!);
+      context.read<AccountBloc>().add(const ClearErrorEvent());
+    }
+
+    if (state.status == AccountStatus.deleted) {
+      context.read<AuthBloc>().add(const SignOutEvent());
+    }
+  }
+
+  void _showSuccessMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  void _showDeleteAccountDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete Account'),
-        content: const Text(
-          'This action is permanent and cannot be undone. '
-          'All your data will be permanently deleted.',
+  void _showErrorMessage(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        action: SnackBarAction(
+          label: 'Retry',
+          textColor: Colors.white,
+          onPressed: () =>
+              context.read<AccountBloc>().add(const FetchProfileEvent()),
         ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+        duration: const Duration(seconds: 4),
+      ),
+    );
+  }
+
+}
+
+class _LoadingView extends StatelessWidget {
+  const _LoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
+  }
+}
+
+class _ErrorView extends StatelessWidget {
+  final VoidCallback onRetry;
+
+  const _ErrorView({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            AppLocalizations.getString(context, 'common.error'),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              context.read<AccountBloc>().add(const DeleteAccountEvent());
-            },
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.red),
-            ),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: onRetry,
+            child: Text(AppLocalizations.getString(context, 'profile.retry')),
           ),
         ],
       ),

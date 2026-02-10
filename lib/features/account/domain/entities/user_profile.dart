@@ -2,7 +2,7 @@
 import 'package:equatable/equatable.dart';
 
 class UserProfile extends Equatable {
- final String id;
+  final String id;
   final String email;
   final String username;
   final String? phone;

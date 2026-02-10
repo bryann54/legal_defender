@@ -95,4 +95,6 @@ class AppColors {
   // Animations
   static const Duration snackBarDuration = Duration(seconds: 4);
   static const Duration splashDelay = Duration(milliseconds: 500);
+
+  static of(BuildContext context) {}
 }

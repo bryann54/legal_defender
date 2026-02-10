@@ -20,7 +20,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Stream<UserEntity?> get authStateChanges =>
       _local.userStream.map((model) => model?.toEntity());
 
-@override
+  @override
   Future<Either<Failure, UserEntity>> signIn(
       String email, String password) async {
     try {
@@ -33,8 +33,7 @@ class AuthRepositoryImpl implements AuthRepository {
       if (access != null && refresh != null) {
         await _local.saveTokens(access: access, refresh: refresh);
       } else {
-        throw  ServerException(
-            'Authentication failed: No tokens received');
+        throw ServerException('Authentication failed: No tokens received');
       }
 
       // 2. Save User Data (Even if partial)

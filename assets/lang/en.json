@@ -26,7 +26,8 @@
     "goToLogin": "Go to Login",
     "share": "Share",
     "goBack": "Go Back",
-    "store": "Store"
+    "store": "Store",
+    "profile": "Profile"
   },
   "language": {
     "selectLanguage": "Select Language",
@@ -41,8 +42,8 @@
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm Password",
-    "first name": "First Name",
-    "last name": "Last Name",
+    "firstName": "First Name",
+    "lastName": "Last Name",
     "phoneNumber": "Phone Number",
     "createAccount": "Create Account",
     "setupAccount": "Set up your Legal Defender account",
@@ -53,10 +54,10 @@
     "processing": "Processing...",
     "settingThingsUp": "Setting things up for you...",
     "redirecting": "Redirecting...",
-    "emailRequired": "email is required",
-    "passwordRequired": "password is required",
-    "usernameRequired": "username is required",
-    "phoneRequired": "phone number is required",
+    "emailRequired": "Email is required",
+    "passwordRequired": "Password is required",
+    "usernameRequired": "Username is required",
+    "phoneRequired": "Phone number is required",
     "confirmPasswordRequired": "Password confirmation is required",
     "invalidEmail": "Invalid email address",
     "passwordTooShort": "Password must be at least 5 characters long",
@@ -123,7 +124,7 @@
     "goToProfile": "Go to Profile",
     "sosSendDocuments": "SOS - Send Documents",
     "addContactsOrAttorney": "Add emergency contacts or select an attorney to use SOS",
-    "aiLegalDefender": "Chat with your AI Legal Defender",
+    "aiLegalDefender": "Chat with your AI Legal Advocate",
     "legalGuidance247": "Get legal guidance 24/7",
     "resourcesAndRights": "Resources & Rights",
     "constitutionsLegalDocs": "Constitutions & legal docs",
@@ -155,7 +156,6 @@
     "referralProgram": "Refer friends and earn discounts",
     "logOut": "Log Out",
     "loggingOut": "Logging out...",
-    "logoutConfirm": "Log Out",
     "logoutMessage": "Are you sure you want to log out?",
     "logoutError": "Failed to log out. Please try again.",
     "permissions": "Permissions",
@@ -203,6 +203,8 @@
     "welcome": "Welcome",
     "welcomeTo": "Welcome to",
     "accountDetails": "Account Details",
+    "account": "Account",
+    "preferences": "Preferences",
     "manageAccountDetails": "Manage your Account Details",
     "paymentHistory": "Payment History",
     "viewPastOrders": "View your past orders",
@@ -482,7 +484,6 @@
     "subscriptionRequired": "A subscription is required to access this feature.",
     "startSubscription": "Start Subscription"
   },
-
   "onboarding": {
     "title": "Welcome",
     "skip": "Skip",
@@ -501,5 +502,6 @@
         "title": "Always Available",
         "subtitle": "Legal help when you need it most. 24/7 access to legal resources, documents, and guidance at your fingertips."
       }
-    }}
+    }
+  }
 }

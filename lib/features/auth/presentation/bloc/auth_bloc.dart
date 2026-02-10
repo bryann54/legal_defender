@@ -105,7 +105,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-String _mapFailureToMessage(dynamic failure) {
+  String _mapFailureToMessage(dynamic failure) {
     if (failure is ValidationFailure) return failure.error;
     if (failure is GeneralFailure) return failure.error;
     if (failure is UnauthorizedFailure) return "Invalid email or password";
