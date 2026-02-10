@@ -24,7 +24,11 @@ abstract class AuthLocalDataSource {
 @LazySingleton(as: AuthLocalDataSource)
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   final FlutterSecureStorage _secure;
-  static const _userKey = 'cached_user';
+
+  // Secure storage keys - only used by this class
+  static const _accessTokenKey = 'accessToken';
+  static const _refreshTokenKey = 'refreshToken';
+  static const _userKey = 'cachedUser';
 
   // Controller to broadcast user changes
   final _userStreamController = StreamController<UserModel?>.broadcast();
@@ -47,13 +51,18 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     required String access,
     required String refresh,
   }) async {
-    await _secure.write(key: 'accessToken', value: access);
-    await _secure.write(key: 'refreshToken', value: refresh);
+    await Future.wait([
+      _secure.write(key: _accessTokenKey, value: access),
+      _secure.write(key: _refreshTokenKey, value: refresh),
+    ]);
   }
 
   @override
   Future<void> saveUser(UserModel user) async {
-    await _secure.write(key: _userKey, value: jsonEncode(user.toJson()));
+    await _secure.write(
+      key: _userKey,
+      value: jsonEncode(user.toJson()),
+    );
     // Push the new user model into the stream
     _userStreamController.add(user);
   }
@@ -73,16 +82,20 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> clearAuthData() async {
-    await _secure.deleteAll();
+    await Future.wait([
+      _secure.delete(key: _accessTokenKey),
+      _secure.delete(key: _refreshTokenKey),
+      _secure.delete(key: _userKey),
+    ]);
     // Notify listeners that the user is now null (signed out)
     _userStreamController.add(null);
   }
 
   @override
-  Future<String?> getAccessToken() => _secure.read(key: 'accessToken');
+  Future<String?> getAccessToken() => _secure.read(key: _accessTokenKey);
 
   @override
-  Future<String?> getRefreshToken() => _secure.read(key: 'refreshToken');
+  Future<String?> getRefreshToken() => _secure.read(key: _refreshTokenKey);
 
   @override
   @disposeMethod

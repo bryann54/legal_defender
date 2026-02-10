@@ -2,6 +2,7 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:legal_defender/core/errors/failures.dart';
 import 'package:legal_defender/features/auth/domain/usecases/auth_usecases.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
@@ -104,8 +105,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  String _mapFailureToMessage(dynamic failure) {
-    // Check type or use a helper class for Failure mapping
-    return failure.toString();
+String _mapFailureToMessage(dynamic failure) {
+    if (failure is ValidationFailure) return failure.error;
+    if (failure is GeneralFailure) return failure.error;
+    if (failure is UnauthorizedFailure) return "Invalid email or password";
+    if (failure is NetworkFailure) return "Check your internet connection";
+    return "An unexpected error occurred";
   }
 }

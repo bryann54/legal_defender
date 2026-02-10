@@ -73,11 +73,8 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i934.SharedPreferencesManager>(
         () => _i934.SharedPreferencesManager(gh<_i460.SharedPreferences>()));
-    gh.lazySingleton<_i29.AccountLocalDatasource>(
-        () => _i29.AccountLocalDatasource(
-              gh<_i934.SharedPreferencesManager>(),
-              gh<_i558.FlutterSecureStorage>(),
-            ));
+    gh.lazySingleton<_i29.AccountLocalDatasource>(() =>
+        _i29.AccountLocalDatasource(gh<_i934.SharedPreferencesManager>()));
     gh.lazySingleton<_i878.AuthInterceptor>(() => _i878.AuthInterceptor(
           gh<_i992.AuthLocalDataSource>(),
           gh<String>(instanceName: 'BaseUrl'),

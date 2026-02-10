@@ -1,71 +1,61 @@
 // lib/features/auth/data/models/user_model.dart
 
-import 'package:legal_defender/features/auth/domain/entities/user_entity.dart';
-import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:legal_defender/features/auth/domain/entities/user_entity.dart';
 
 part 'user_model.g.dart';
 
 @JsonSerializable()
-class UserModel extends Equatable {
-  final String id;
-  final String email;
-  final String username;
+class UserModel {
+  // Use user_id as fallback for id, and allow nulls to prevent crashes
+  @JsonKey(name: 'id')
+  final String? id;
+  @JsonKey(name: 'user_id')
+  final String? userId;
+
+  final String? email;
+  final String? username;
+
   @JsonKey(name: 'phone_number')
-  final String phoneNumber;
-  final String state;
+  final String? phoneNumber;
+
+  final String? state;
+
   @JsonKey(name: 'profile_type')
-  final String profileType;
-  final String language;
+  final String? profileType;
+
+  final String? language;
+
+  final String? access;
+  final String? refresh;
 
   const UserModel({
-    required this.id,
-    required this.email,
-    required this.username,
-    required this.phoneNumber,
-    required this.state,
-    required this.profileType,
-    required this.language,
+    this.id,
+    this.userId,
+    this.email,
+    this.username,
+    this.phoneNumber,
+    this.state,
+    this.profileType,
+    this.language,
+    this.access,
+    this.refresh,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    // Handle user_id from response or id from nested user object
-    final userId =
-        (json['user_id']?.toString() ?? json['id']?.toString() ?? '0');
-
-    return UserModel(
-      id: userId,
-      email: json['email'] as String? ?? '',
-      username: json['username'] as String? ?? '',
-      phoneNumber: json['phone_number'] as String? ?? '',
-      state: json['state'] as String? ?? '',
-      profileType: json['profile_type'] as String? ?? 'client',
-      language: json['language'] as String? ?? 'en',
-    );
-  }
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
+      _$UserModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
   UserEntity toEntity() {
     return UserEntity(
-      id: id,
-      email: email,
-      username: username,
-      phoneNumber: phoneNumber,
-      state: state,
-      profileType: profileType,
-      language: language,
+      id: id ?? userId ?? '', // Use whichever ID is available
+      email: email ?? '',
+      username: username ?? 'User',
+      phoneNumber: phoneNumber ?? '',
+      state: state ?? '',
+      profileType: profileType ?? '',
+      language: language ?? 'en',
     );
   }
-
-  @override
-  List<Object?> get props => [
-        id,
-        email,
-        username,
-        phoneNumber,
-        state,
-        profileType,
-        language,
-      ];
 }

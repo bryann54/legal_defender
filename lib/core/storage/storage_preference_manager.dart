@@ -1,15 +1,21 @@
+// lib/core/storage/storage_preference_manager.dart
+
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 @lazySingleton
 class SharedPreferencesManager {
   final SharedPreferences _sharedPreferences;
-  static const String keyAccessToken = 'accessToken';
+
+  // SECURITY NOTE: Tokens are stored in FlutterSecureStorage (by AuthLocalDataSource)
+  // NOT in SharedPreferences, so keyAccessToken has been removed
+
   static const String firebaseToken = 'firebaseToken';
   static const String keyIsLogin = 'isLogin';
   static const String user = 'user';
   static const addresses = 'addresses';
   static String language = 'language';
+
   SharedPreferencesManager(this._sharedPreferences);
 
   Future<bool> putBool(String key, bool value) =>

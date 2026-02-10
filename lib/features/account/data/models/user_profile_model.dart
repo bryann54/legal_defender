@@ -1,4 +1,5 @@
 // lib/features/account/data/models/user_profile_model.dart
+
 import 'package:json_annotation/json_annotation.dart';
 import 'package:legal_defender/features/account/domain/entities/user_profile.dart';
 
@@ -10,14 +11,17 @@ class UserProfileModel extends UserProfile {
   final String? phoneNumber;
 
   const UserProfileModel({
-    required super.id,
+    required super.id, 
     required super.email,
     required super.username,
     this.phoneNumber,
     super.state,
-  }) : super(phone: phoneNumber);
+  }) : super(
+          phone: phoneNumber,
+        );
 
   factory UserProfileModel.fromJson(Map<String, dynamic> json) =>
       _$UserProfileModelFromJson(json);
+
   Map<String, dynamic> toJson() => _$UserProfileModelToJson(this);
 }

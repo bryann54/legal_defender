@@ -20,18 +20,34 @@ class AuthRepositoryImpl implements AuthRepository {
   Stream<UserEntity?> get authStateChanges =>
       _local.userStream.map((model) => model?.toEntity());
 
-  @override
+@override
   Future<Either<Failure, UserEntity>> signIn(
       String email, String password) async {
     try {
       final userModel = await _remote.login(email, password);
-      await _local.saveTokens(access: '...', refresh: '...');
+
+      // 1. Save Tokens Immediately
+      final access = userModel.access;
+      final refresh = userModel.refresh;
+
+      if (access != null && refresh != null) {
+        await _local.saveTokens(access: access, refresh: refresh);
+      } else {
+        throw  ServerException(
+            'Authentication failed: No tokens received');
+      }
+
+      // 2. Save User Data (Even if partial)
       await _local.saveUser(userModel);
+
       return Right(userModel.toEntity());
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(error: e.message));
     } on UnauthorizedException {
-      return const Left(UnauthorizedFailure());
+      return Left(UnauthorizedFailure());
     } catch (e) {
-      return Left(GeneralFailure(error: e.toString()));
+      return Left(
+          GeneralFailure(error: e.toString().replaceFirst('Exception: ', '')));
     }
   }
 
@@ -39,9 +55,31 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<Failure, UserEntity>> signUp(
       Map<String, dynamic> params) async {
     try {
+      // 1. Call API to register
       final userModel = await _remote.register(params);
+
+      // 2. Extract and save tokens from API response
+      if (userModel.access != null && userModel.refresh != null) {
+        await _local.saveTokens(
+          access: userModel.access!,
+          refresh: userModel.refresh!,
+        );
+        print(
+            '🔑 Tokens saved - Access: ${userModel.access!.substring(0, 20)}...');
+      } else {
+        throw ServerException('No tokens returned from server');
+      }
+
+      // 3. Save user data
       await _local.saveUser(userModel);
+
       return Right(userModel.toEntity());
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(error: e.message));
+    } on NetworkException catch (e) {
+      return Left(GeneralFailure(error: e.message ?? 'Network error'));
+    } on ServerException catch (e) {
+      return Left(GeneralFailure(error: e.message ?? 'Server error'));
     } catch (e) {
       return Left(GeneralFailure(error: e.toString()));
     }
@@ -50,6 +88,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, void>> signOut() async {
     try {
+      // Clear all auth data from secure storage
       await _local.clearAuthData();
       return const Right(null);
     } catch (e) {
@@ -59,19 +98,34 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, UserEntity?>> getCurrentUser() async {
-    final user = await _local.getUser();
-    return Right(user?.toEntity());
+    try {
+      final user = await _local.getUser();
+      return Right(user?.toEntity());
+    } catch (e) {
+      return Left(GeneralFailure(error: e.toString()));
+    }
   }
 
   @override
   Future<Either<Failure, String>> refreshToken() async {
-    return const Right("new_token");
+    try {
+      final refreshToken = await _local.getRefreshToken();
+      if (refreshToken == null) {
+        return const Left(UnauthorizedFailure());
+      }
+
+      // This is handled by AuthInterceptor automatically
+      // But we can implement it here if needed for manual refresh
+      return Right(refreshToken);
+    } catch (e) {
+      return Left(GeneralFailure(error: e.toString()));
+    }
   }
 
   @override
   Future<Either<Failure, void>> resetPassword(
       String email, String otp, String newPassword) async {
+    // TODO: Implement when backend endpoint is ready
     return const Right(null);
-
   }
 }
