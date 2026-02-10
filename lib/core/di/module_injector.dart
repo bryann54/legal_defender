@@ -1,3 +1,5 @@
+// lib/core/di/register_modules.dart
+
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -11,14 +13,19 @@ abstract class RegisterModules {
       await SharedPreferences.getInstance();
 
   @Named('BaseUrl')
-  String get baseUrl => dotenv.env['BASE_URL']!;
+  String get baseUrl => dotenv.env['BASE_URL'] ?? 'https://fallback-url.com';
 
-  @Named('ApiKey')
-  String get apiKey => dotenv.env['API_KEY']!;
-
+  // ADD THE @Named ANNOTATION HERE
+  @Named('base_dio')
   @lazySingleton
   Dio dio(@Named('BaseUrl') String url) => Dio(
-      BaseOptions(baseUrl: url, connectTimeout: const Duration(seconds: 10)));
+        BaseOptions(
+          baseUrl: url,
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+        ),
+      );
+
   @lazySingleton
   FlutterSecureStorage get secureStorage => const FlutterSecureStorage();
 }

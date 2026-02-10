@@ -52,6 +52,8 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
       context.read<AuthBloc>().add(
             ResetPasswordEvent(
               email: _controllersManager.email,
+              otp: '',
+              newPassword: '',
             ),
           );
     }

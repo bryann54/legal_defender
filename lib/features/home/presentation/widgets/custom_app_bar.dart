@@ -28,7 +28,7 @@ class CustomAppBar extends StatelessWidget {
     if (isHome &&
         state.status == AuthStatus.authenticated &&
         state.user != null) {
-      return state.user!.firstName;
+      return state.user!.username;
     }
     return title ?? AppLocalizations.getString(context, 'dashboard.guest');
   }
@@ -79,10 +79,11 @@ class CustomAppBar extends StatelessWidget {
                 ),
                 title: AnimatedOpacity(
                   duration: const Duration(milliseconds: 200),
-                  // Title is ALWAYS visible on sub-screens, fades on Home
                   opacity: !isHome ? 1.0 : (collapseRatio > 0.5 ? 1.0 : 0.0),
                   child: Text(
-                    isHome ? 'Hi, $displayName' : displayName,
+                    isHome
+                        ? '${AppLocalizations.getString(context, "dashboard.hi")}, $displayName'
+                        : displayName,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 18,

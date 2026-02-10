@@ -47,6 +47,15 @@ class AuthStateListener extends StatelessWidget {
       case AuthStatus.initial:
       case AuthStatus.loading:
         break;
+      case AuthStatus.otpSent:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case AuthStatus.otpVerified:
+        // TODO: Handle this case.
+        throw UnimplementedError();
+      case AuthStatus.passwordReset:
+        // TODO: Handle this case.
+        throw UnimplementedError();
     }
   }
 
@@ -91,7 +100,8 @@ class AuthStateListener extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                errorMessage ?? AppLocalizations.getString(context, 'auth.genericError'),
+                errorMessage ??
+                    AppLocalizations.getString(context, 'auth.genericError'),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),

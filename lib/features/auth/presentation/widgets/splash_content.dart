@@ -22,27 +22,32 @@ class _SplashContentState extends State<SplashContent>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 2000), // Slower, more elegant
+      duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
-          parent: _controller,
-          curve: const Interval(0.0, 0.5, curve: Curves.easeOut)),
+        parent: _controller,
+        curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+      ),
     );
 
     _blurAnimation = Tween<double>(begin: 10.0, end: 0.0).animate(
       CurvedAnimation(
-          parent: _controller,
-          curve: const Interval(0.2, 0.7, curve: Curves.easeInOut)),
+        parent: _controller,
+        curve: const Interval(0.2, 0.7, curve: Curves.easeInOut),
+      ),
     );
 
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.1), end: Offset.zero).animate(
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.05),
+      end: Offset.zero,
+    ).animate(
       CurvedAnimation(
-          parent: _controller,
-          curve: const Interval(0.2, 0.8, curve: Curves.easeOutQuart)),
+        parent: _controller,
+        curve: const Interval(0.2, 0.8, curve: Curves.easeOutQuart),
+      ),
     );
 
     _controller.forward();
@@ -57,54 +62,55 @@ class _SplashContentState extends State<SplashContent>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return FadeTransition(
-          opacity: _fadeAnimation,
-          child: SlideTransition(
-            position: _slideAnimation,
-            child: ImageFiltered(
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: AnimatedBuilder(
+          animation: _blurAnimation,
+          builder: (context, child) {
+            return ImageFiltered(
               imageFilter: ImageFilter.blur(
-                  sigmaX: _blurAnimation.value, sigmaY: _blurAnimation.value),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Minimalist Logo Container
-                  SizedBox(
-                    width: 230,
-                    height: 250,
-                    child: Image.asset(
-                      'assets/legal_logo.png',
-                      errorBuilder: (_, __, ___) => Icon(
-                        Icons.gavel_rounded,
-                        size: 40,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  // Typographic treatment
-                  Text(
-                    'LEGAL DEFENDER',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 4.0,
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  AuthDivider(
-                    text: 'Justice and Integrity',
-                  ),
-                  const SizedBox(height: 12),
-                ],
+                sigmaX: _blurAnimation.value,
+                sigmaY: _blurAnimation.value,
               ),
-            ),
+              child: child,
+            );
+          },
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 230,
+                height: 250,
+                child: Image.asset(
+                  'assets/legal_logo.png',
+                  // Production grade: always handle missing assets gracefully
+                  errorBuilder: (context, error, stackTrace) => Icon(
+                    Icons.gavel_rounded,
+                    size: 80, // Slightly larger to fill the space
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 40),
+              Text(
+                'LEGAL DEFENDER',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 4.0,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 12),
+              // Ensure AuthDivider is efficient and doesn't contain logic
+              const AuthDivider(
+                text: 'Justice and Integrity',
+              ),
+            ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

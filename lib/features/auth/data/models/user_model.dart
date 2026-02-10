@@ -10,53 +10,38 @@ part 'user_model.g.dart';
 class UserModel extends Equatable {
   final String id;
   final String email;
-  final String firstName;
-  final String lastName;
-  final String? profileImageUrl;
+  final String username;
+  @JsonKey(name: 'phone_number')
+  final String phoneNumber;
+  final String state;
+  @JsonKey(name: 'profile_type')
+  final String profileType;
+  final String language;
 
   const UserModel({
     required this.id,
     required this.email,
-    required this.firstName,
-    required this.lastName,
-    this.profileImageUrl,
+    required this.username,
+    required this.phoneNumber,
+    required this.state,
+    required this.profileType,
+    required this.language,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
-    // Handle different response structures from login and register
-    final userData = json['user'] ?? json;
+    // Handle user_id from response or id from nested user object
+    final userId =
+        (json['user_id']?.toString() ?? json['id']?.toString() ?? '0');
 
     return UserModel(
-      id: _parseId(userData),
-      email: _parseEmail(userData),
-      firstName: _parseFirstName(userData),
-      lastName: _parseLastName(userData),
-      profileImageUrl: userData['profile_image_url'] as String? ??
-          userData['profileImageUrl'] as String?,
+      id: userId,
+      email: json['email'] as String? ?? '',
+      username: json['username'] as String? ?? '',
+      phoneNumber: json['phone_number'] as String? ?? '',
+      state: json['state'] as String? ?? '',
+      profileType: json['profile_type'] as String? ?? 'client',
+      language: json['language'] as String? ?? 'en',
     );
-  }
-
-  static String _parseId(Map<String, dynamic> userData) {
-    return (userData['id']?.toString() ??
-        userData['user_id']?.toString() ??
-        '0');
-  }
-
-  static String _parseEmail(Map<String, dynamic> userData) {
-    return userData['email'] as String? ?? '';
-  }
-
-  static String _parseFirstName(Map<String, dynamic> userData) {
-    return userData['first_name'] as String? ??
-        userData['firstName'] as String? ??
-        userData['fullname'] as String? ??
-        '';
-  }
-
-  static String _parseLastName(Map<String, dynamic> userData) {
-    return userData['last_name'] as String? ??
-        userData['lastName'] as String? ??
-        '';
   }
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
@@ -65,12 +50,22 @@ class UserModel extends Equatable {
     return UserEntity(
       id: id,
       email: email,
-      firstName: firstName,
-      lastName: lastName,
-      profileImageUrl: profileImageUrl,
+      username: username,
+      phoneNumber: phoneNumber,
+      state: state,
+      profileType: profileType,
+      language: language,
     );
   }
 
   @override
-  List<Object?> get props => [id, email, firstName, lastName, profileImageUrl];
+  List<Object?> get props => [
+        id,
+        email,
+        username,
+        phoneNumber,
+        state,
+        profileType,
+        language,
+      ];
 }

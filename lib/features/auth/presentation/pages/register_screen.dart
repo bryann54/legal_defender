@@ -16,6 +16,7 @@ import 'package:legal_defender/features/auth/presentation/widgets/auth_header.da
 import 'package:legal_defender/features/auth/presentation/widgets/auth_state_listener.dart';
 import 'package:legal_defender/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:legal_defender/features/auth/presentation/widgets/password_strength_indicator.dart';
+// lib/features/auth/presentation/pages/register_screen.dart
 
 @RoutePage()
 class RegisterScreen extends StatefulWidget {
@@ -26,56 +27,33 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  late final RegisterControllersManager _controllersManager;
+  late final RegisterControllersManager _manager;
   bool _isPasswordVisible = false;
   bool _isConfirmPasswordVisible = false;
-  bool _canRegister = false;
-  int _passwordStrength = 0;
 
   @override
   void initState() {
     super.initState();
-    _controllersManager = RegisterControllersManager(
-      onFormChanged: _checkFormValidity,
+    _manager = RegisterControllersManager(
+      onFormChanged: () => setState(() {}),
     );
   }
 
   @override
   void dispose() {
-    _controllersManager.dispose();
+    _manager.dispose();
     super.dispose();
   }
 
-  void _checkFormValidity() {
-    // Calculate password strength
-    final newPasswordStrength = AuthValidators.calculatePasswordStrength(
-      _controllersManager.password,
-    );
-
-    // Check if form is valid
-    final newCanRegister = _controllersManager.canAttemptRegister &&
-        _controllersManager.passwordsMatch &&
-        _controllersManager.passwordMeetsMinLength(8) &&
-        AuthValidators.validateEmail(_controllersManager.email) == null;
-
-    if (_canRegister != newCanRegister ||
-        _passwordStrength != newPasswordStrength) {
-      setState(() {
-        _canRegister = newCanRegister;
-        _passwordStrength = newPasswordStrength;
-      });
-    }
-  }
-
   void _handleRegister() {
-    if (_controllersManager.validate()) {
+    if (_manager.validate()) {
       context.read<AuthBloc>().add(
-            SignUpWithEmailAndPasswordEvent(
-              email: _controllersManager.email,
-              password: _controllersManager.password,
-              firstName: '',
-              lastName: '',
-              profileImage: null,
+            SignUpEvent(
+              email: _manager.email,
+              password: _manager.password,
+              username: _manager.userName,
+              phoneNumber: _manager.phone,
+              state: _manager.state,
             ),
           );
     }
@@ -83,111 +61,87 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final strength =
+        AuthValidators.calculatePasswordStrength(_manager.password);
+
     return Scaffold(
       body: AuthStateListener(
         child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Form(
-              key: _controllersManager.formKey,
+              key: _manager.formKey,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                   AuthHeader(
-                    title: AppLocalizations.getString(context, 'auth.createAccount'),
-                    subtitle: AppLocalizations.getString(context, 'auth.setupAccount'),
+                  AuthHeader(
+                    title: AppLocalizations.getString(
+                        context, 'auth.createAccount'),
+                    subtitle: AppLocalizations.getString(
+                        context, 'auth.setupAccount'),
                   ),
                   const SizedBox(height: 40),
-AuthTextField(controller: _controllersManager.firstNameController, label:AppLocalizations.getString(context,'profile.username'), icon: Icons.person_outline,).animate(delay: 100.ms).fadeIn(duration: 600.ms).slideY(begin: 0.2, end: 0),
-                  const SizedBox(height: 16),
-                  // Email Field
                   AuthTextField(
-                    controller: _controllersManager.emailController,
+                    controller: _manager.usernameController,
+                    label:
+                        AppLocalizations.getString(context, 'profile.username'),
+                    icon: Icons.person_outline,
+                  ).animate().fadeIn().slideY(begin: 0.1, end: 0),
+                  const SizedBox(height: 16),
+                  AuthTextField(
+                    controller: _manager.emailController,
                     label: AppLocalizations.getString(context, 'auth.email'),
                     icon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
                     validator: AuthValidators.validateEmail,
-                    onChanged: (value) => _checkFormValidity(),
-                  )
-                      .animate(delay: 300.ms)
-                      .fadeIn(duration: 600.ms)
-                      .slideY(begin: 0.2, end: 0),
+                  ).animate(delay: 100.ms).fadeIn().slideY(begin: 0.1, end: 0),
                   const SizedBox(height: 16),
-
-                  // Password Field
                   AuthTextField(
-                    controller: _controllersManager.passwordController,
+                    controller: _manager.passwordController,
                     label: AppLocalizations.getString(context, 'auth.password'),
                     icon: Icons.lock_outline,
                     isPassword: true,
                     isPasswordVisible: _isPasswordVisible,
-                    onVisibilityToggle: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                    validator: (value) =>
-                        AuthValidators.validatePassword(value, isStrict: true),
-                    onChanged: (value) => _checkFormValidity(),
-                  )
-                      .animate(delay: 400.ms)
-                      .fadeIn(duration: 600.ms)
-                      .slideY(begin: 0.2, end: 0),
-
-                  // Password Strength Indicator
-                  if (_controllersManager.hasPassword)
+                    onVisibilityToggle: () => setState(
+                        () => _isPasswordVisible = !_isPasswordVisible),
+                    validator: (v) =>
+                        AuthValidators.validatePassword(v, isStrict: true),
+                  ).animate(delay: 200.ms).fadeIn().slideY(begin: 0.1, end: 0),
+                  if (_manager.password.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(top: 8.0),
-                      child: PasswordStrengthIndicator(
-                        strength: _passwordStrength,
-                      ),
-                    )
-                        .animate()
-                        .fadeIn(duration: 300.ms)
-                        .slideY(begin: -0.2, end: 0),
-
+                      child: PasswordStrengthIndicator(strength: strength),
+                    ).animate().fadeIn(),
                   const SizedBox(height: 16),
-
-                  // Confirm Password Field
                   AuthTextField(
-                    controller: _controllersManager.confirmPasswordController,
-                    label: AppLocalizations.getString(context, 'auth.confirmPassword'),
+                    controller: _manager.confirmPasswordController,
+                    label: AppLocalizations.getString(
+                        context, 'auth.confirmPassword'),
                     icon: Icons.lock_outline,
                     isPassword: true,
                     isPasswordVisible: _isConfirmPasswordVisible,
-                    onVisibilityToggle: () {
-                      setState(() {
-                        _isConfirmPasswordVisible = !_isConfirmPasswordVisible;
-                      });
-                    },
-                    validator: (value) =>
-                        AuthValidators.validateConfirmPassword(
-                      value,
-                      _controllersManager.password,
-                    ),
-                    onChanged: (value) => _checkFormValidity(),
-                  )
-                      .animate(delay: 500.ms)
-                      .fadeIn(duration: 600.ms)
-                      .slideY(begin: 0.2, end: 0),
+                    onVisibilityToggle: () => setState(() =>
+                        _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
+                    validator: (v) => AuthValidators.validateConfirmPassword(
+                        v, _manager.password),
+                  ).animate(delay: 300.ms).fadeIn().slideY(begin: 0.1, end: 0),
                   const SizedBox(height: 32),
-
-                  // Register Button
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
+                      final isReady = _manager.canAttemptRegister &&
+                          _manager.passwordsMatch &&
+                          state.status != AuthStatus.loading;
+
                       return AuthButton(
-                        text: AppLocalizations.getString(context, 'auth.createAccount'),
-                        isEnabled:
-                            _canRegister && state.status != AuthStatus.loading,
+                        text: AppLocalizations.getString(
+                            context, 'auth.createAccount'),
+                        isEnabled: isReady,
                         isLoading: state.status == AuthStatus.loading,
                         onPressed: _handleRegister,
                         heroTag: 'register_button',
                       );
                     },
-                  )
-                      .animate(delay: 600.ms)
-                      .fadeIn(duration: 600.ms)
-                      .slideY(begin: 0.2, end: 0),
+                  ).animate(delay: 400.ms).fadeIn(),
                 ],
               ),
             ),
@@ -195,11 +149,10 @@ AuthTextField(controller: _controllersManager.firstNameController, label:AppLoca
         ),
       ),
       bottomNavigationBar: AuthBottomBar(
-        promptText: AppLocalizations.getString(context, 'auth.alreadyHaveAccount'),
+        promptText:
+            AppLocalizations.getString(context, 'auth.alreadyHaveAccount'),
         actionText: AppLocalizations.getString(context, 'auth.signInLink'),
-        onActionPressed: () {
-          context.router.maybePop();
-        },
+        onActionPressed: () => context.router.maybePop(),
         heroTag: 'auth_toggle_button',
       ),
     );

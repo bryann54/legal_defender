@@ -17,7 +17,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          CustomAppBar(title:  AppLocalizations.getString(context,'dashboard.notifications'), showNotification: false,),
+          CustomAppBar(
+            title:
+                AppLocalizations.getString(context, 'dashboard.notifications'),
+            showNotification: false,
+          ),
 
           // Your content below
           SliverPadding(

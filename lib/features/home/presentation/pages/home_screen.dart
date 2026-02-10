@@ -11,7 +11,10 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       body: CustomScrollView(
         slivers: [
-          const CustomAppBar(isHome: true,showNotification: true,),
+          const CustomAppBar(
+            isHome: true,
+            showNotification: true,
+          ),
 
           // Your content below
           SliverPadding(

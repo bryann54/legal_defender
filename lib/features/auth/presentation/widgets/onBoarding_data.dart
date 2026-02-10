@@ -1,4 +1,3 @@
-
 import 'package:legal_defender/features/auth/data/models/onboarding_page_model.dart';
 
 class OnboardingData {

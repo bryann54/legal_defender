@@ -1,7 +1,7 @@
 // lib/features/auth/presentation/bloc/auth_state.dart
 
 import 'package:equatable/equatable.dart';
-import 'package:legal_defender/features/auth/domain/entities/user_entity.dart'; // Import UserEntity
+import 'package:legal_defender/features/auth/domain/entities/user_entity.dart';
 
 enum AuthStatus {
   initial,
@@ -9,6 +9,9 @@ enum AuthStatus {
   authenticated,
   unauthenticated,
   error,
+  otpSent,
+  otpVerified,
+  passwordReset,
 }
 
 class AuthState extends Equatable {

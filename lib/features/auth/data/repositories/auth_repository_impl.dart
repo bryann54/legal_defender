@@ -1,59 +1,48 @@
 // lib/features/auth/data/repositories/auth_repository_impl.dart
 
-import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:legal_defender/core/errors/exceptions.dart';
 import 'package:legal_defender/core/errors/failures.dart';
-import 'package:legal_defender/features/auth/data/datasources/auth_remoteDataSource.dart';
+import 'package:legal_defender/features/auth/data/datasources/auth_local_datasource.dart';
+import 'package:legal_defender/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:legal_defender/features/auth/domain/entities/user_entity.dart';
 import 'package:legal_defender/features/auth/domain/repositories/auth_epository.dart';
 
 @LazySingleton(as: AuthRepository)
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthRemoteDataSource _remoteDataSource;
+  final AuthRemoteDataSource _remote;
+  final AuthLocalDataSource _local;
 
-  AuthRepositoryImpl(this._remoteDataSource);
-
-  @override
-  Stream<UserEntity?> get authStateChanges => _remoteDataSource.authStateChanges
-      .map((userModel) => userModel?.toEntity());
+  AuthRepositoryImpl(this._remote, this._local);
 
   @override
-  Future<Either<Failure, UserEntity>> signInWithEmailAndPassword(
-    String email,
-    String password,
-  ) async {
+  Stream<UserEntity?> get authStateChanges =>
+      _local.userStream.map((model) => model?.toEntity());
+
+  @override
+  Future<Either<Failure, UserEntity>> signIn(
+      String email, String password) async {
     try {
-      final userModel =
-          await _remoteDataSource.signInWithEmailAndPassword(email, password);
+      final userModel = await _remote.login(email, password);
+      // Backend returns tokens inside the user model or response
+      await _local.saveTokens(access: '...', refresh: '...');
+      await _local.saveUser(userModel);
       return Right(userModel.toEntity());
-    } on ServerException {
-      return const Left(ServerFailure());
+    } on UnauthorizedException {
+      return const Left(UnauthorizedFailure());
     } catch (e) {
       return Left(GeneralFailure(error: e.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, UserEntity>> signUpWithEmailAndPassword(
-    String email,
-    String password,
-    String firstName,
-    String lastName,
-    File? profileImage,
-  ) async {
+  Future<Either<Failure, UserEntity>> signUp(
+      Map<String, dynamic> params) async {
     try {
-      final userModel = await _remoteDataSource.signUpWithEmailAndPassword(
-        email,
-        password,
-        firstName,
-        lastName,
-        profileImage,
-      );
+      final userModel = await _remote.register(params);
+      await _local.saveUser(userModel);
       return Right(userModel.toEntity());
-    } on ServerException {
-      return const Left(ServerFailure());
     } catch (e) {
       return Left(GeneralFailure(error: e.toString()));
     }
@@ -62,66 +51,29 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, void>> signOut() async {
     try {
-      await _remoteDataSource.signOut();
+      await _local.clearAuthData();
       return const Right(null);
     } catch (e) {
-      return Left(GeneralFailure(error: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, void>> resetPassword(String email) async {
-    try {
-      await _remoteDataSource.resetPassword(email);
-      return const Right(null);
-    } catch (e) {
-      return Left(GeneralFailure(error: e.toString()));
+      return const Left(CacheFailure());
     }
   }
 
   @override
   Future<Either<Failure, UserEntity?>> getCurrentUser() async {
-    try {
-      final userModel = await _remoteDataSource.authStateChanges.first;
-      return Right(userModel?.toEntity());
-    } catch (e) {
-      return Left(GeneralFailure(error: e.toString()));
-    }
+    final user = await _local.getUser();
+    return Right(user?.toEntity());
   }
 
   @override
-  Future<Either<Failure, void>> changePassword(
-      String currentPassword, String newPassword) async {
-    try {
-      await _remoteDataSource.changePassword(currentPassword, newPassword);
-      return const Right(null);
-    } catch (e) {
-      return Left(GeneralFailure(error: e.toString()));
-    }
+  Future<Either<Failure, String>> refreshToken() async {
+    // Logic for refreshing via remote and saving to local
+    return const Right("new_token");
   }
 
   @override
-  Future<Either<Failure, void>> verifyOtp(String email, String otp) async {
-    try {
-      await _remoteDataSource.verifyOtp(email, otp);
-      return const Right(null);
-    } catch (e) {
-      return Left(GeneralFailure(error: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, void>> sendOtp(String email) async {
-    try {
-      await _remoteDataSource.sendOtp(email);
-      return const Right(null);
-    } catch (e) {
-      return Left(GeneralFailure(error: e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, UserEntity>> signInWithGoogle() async {
-    return Left(GeneralFailure(error: "Google Sign-In not implemented"));
+  Future<Either<Failure, void>> resetPassword(
+      String email, String otp, String newPassword) async {
+    // implementation...
+    return const Right(null);
   }
 }

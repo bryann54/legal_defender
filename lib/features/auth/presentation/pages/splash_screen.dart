@@ -19,66 +19,36 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  bool _minimumDelayComplete = false;
-  bool _authCheckComplete = false;
-  AuthState? _authStateToNavigate;
-
   @override
   void initState() {
     super.initState();
-    // Start the minimum delay timer
-    _startMinimumDelay();
-    // Trigger auth check when splash screen loads
+    // Start logic immediately
     context.read<AuthBloc>().add(const CheckAuthStatusEvent());
-  }
 
-  void _startMinimumDelay() {
-    Future.delayed(const Duration(seconds: 5), () {
+    // Start the timer and trigger navigation attempt when done
+    Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        setState(() {
-          _minimumDelayComplete = true;
-        });
-        _checkIfReadyToNavigate();
+        _attemptNavigation(context.read<AuthBloc>().state);
       }
     });
   }
 
-  void _onAuthStateChanged(AuthState state) {
-    // Only consider non-initial/loading states
-    if (state.status != AuthStatus.initial &&
-        state.status != AuthStatus.loading) {
-      setState(() {
-        _authCheckComplete = true;
-        _authStateToNavigate = state;
-      });
-      _checkIfReadyToNavigate();
+  void _attemptNavigation(AuthState state) {
+    // 1. Logic Guard: Don't navigate if we are still 'loading' or 'initial'
+    // even if the 3 seconds are up.
+    if (state.status == AuthStatus.loading ||
+        state.status == AuthStatus.initial) {
+      return;
     }
-  }
 
-  void _checkIfReadyToNavigate() {
-    // Only navigate when both conditions are met
-    if (_minimumDelayComplete &&
-        _authCheckComplete &&
-        _authStateToNavigate != null) {
-      _navigateBasedOnAuthState(_authStateToNavigate!);
-    }
-  }
-
-  void _navigateBasedOnAuthState(AuthState state) {
-    if (!mounted) return;
-
+    // 2. Navigation logic
     switch (state.status) {
       case AuthStatus.authenticated:
         context.router.replace(MainRoute());
-        break;
       case AuthStatus.unauthenticated:
       case AuthStatus.error:
-         context.router.replace(AuthRoute());
-        // context.router.replace(HomeRoute());
-
-        break;
-      case AuthStatus.initial:
-      case AuthStatus.loading:
+        context.router.replace(const AuthRoute());
+      default:
         break;
     }
   }
@@ -88,9 +58,9 @@ class _SplashScreenState extends State<SplashScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return BlocListener<AuthBloc, AuthState>(
-      listener: (context, state) {
-        _onAuthStateChanged(state);
-      },
+      // Only listen, don't rebuild the whole body for status changes
+      // unless you actually need to show a loader.
+      listener: (context, state) => _attemptNavigation(state),
       child: Scaffold(
         backgroundColor: isDark
             ? AppColors.darkBackgroundColor

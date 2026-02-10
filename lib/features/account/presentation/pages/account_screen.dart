@@ -26,7 +26,10 @@ class AccountScreen extends StatelessWidget {
       child: CustomScrollView(
         slivers: [
           CustomAppBar(
-            title: AppLocalizations.getString(context, 'profile.title',),
+            title: AppLocalizations.getString(
+              context,
+              'profile.title',
+            ),
             showNotification: true,
             expandedHeight: kToolbarHeight + MediaQuery.of(context).padding.top,
           ),
@@ -44,7 +47,8 @@ class AccountScreen extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        AppLocalizations.getString(context, 'settings.language'),
+                        AppLocalizations.getString(
+                            context, 'settings.language'),
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       const SizedBox(height: 20),

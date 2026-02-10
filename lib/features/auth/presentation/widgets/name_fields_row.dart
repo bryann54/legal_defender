@@ -40,7 +40,7 @@ class NameFieldsRow extends StatelessWidget {
         Expanded(
           child: AuthTextField(
             controller: lastNameController,
-            label:  AppLocalizations.getString(context, 'auth.last name'),
+            label: AppLocalizations.getString(context, 'auth.last name'),
             icon: Icons.person_outline,
             validator: AuthValidators.validateLastName,
             onChanged: onChanged,
