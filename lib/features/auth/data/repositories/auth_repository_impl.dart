@@ -65,14 +65,13 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<Failure, String>> refreshToken() async {
-    // Logic for refreshing via remote and saving to local
     return const Right("new_token");
   }
 
   @override
   Future<Either<Failure, void>> resetPassword(
       String email, String otp, String newPassword) async {
-    // implementation...
     return const Right(null);
+
   }
 }

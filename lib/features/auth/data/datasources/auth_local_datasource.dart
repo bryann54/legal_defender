@@ -84,7 +84,6 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<String?> getRefreshToken() => _secure.read(key: 'refreshToken');
 
-  /// Clean up the controller when the app disposes of this singleton
   @override
   @disposeMethod
   void dispose() {

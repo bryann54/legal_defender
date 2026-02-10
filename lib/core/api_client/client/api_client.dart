@@ -11,7 +11,6 @@ import 'package:legal_defender/core/errors/exceptions.dart';
 class ApiClient {
   final Dio _dio;
 
-  // Static helpers to fix the "getter not defined" error
   static Options get protected => Options(headers: {'requiresToken': true});
   static Options get open => Options(headers: {'requiresToken': false});
 
@@ -32,43 +31,20 @@ class ApiClient {
     ]);
   }
 
-  // GET
-  Future<T> get<T>({
-    required String url,
-    Map<String, dynamic>? query,
-    Options? options,
-  }) =>
+  Future<T> get<T>(
+          {required String url,
+          Map<String, dynamic>? query,
+          Options? options}) =>
       _request(() => _dio.get(url, queryParameters: query, options: options));
 
-  // POST
-  Future<T> post<T>({
-    required String url,
-    dynamic payload,
-    Options? options,
-  }) =>
+  Future<T> post<T>({required String url, dynamic payload, Options? options}) =>
       _request(() => _dio.post(url, data: payload, options: options));
 
-  // PATCH (Added)
-  Future<T> patch<T>({
-    required String url,
-    dynamic payload,
-    Options? options,
-  }) =>
+  Future<T> patch<T>(
+          {required String url, dynamic payload, Options? options}) =>
       _request(() => _dio.patch(url, data: payload, options: options));
 
-  // PUT
-  Future<T> put<T>({
-    required String url,
-    dynamic payload,
-    Options? options,
-  }) =>
-      _request(() => _dio.put(url, data: payload, options: options));
-
-  // DELETE
-  Future<T> delete<T>({
-    required String url,
-    Options? options,
-  }) =>
+  Future<T> delete<T>({required String url, Options? options}) =>
       _request(() => _dio.delete(url, options: options));
 
   Future<T> _request<T>(Future<Response> Function() apiCall) async {
@@ -82,7 +58,20 @@ class ApiClient {
 
   Exception _handleDioError(DioException e) {
     final data = e.response?.data;
-    final message = data is Map ? (data['message'] ?? data['detail']) : null;
+    String? message;
+
+    // Production-grade unwrapping of backend error maps
+    if (data is Map) {
+      final errorContent =
+          data['non_field_errors'] ?? data['detail'] ?? data['message'] ?? data;
+      if (errorContent is List && errorContent.isNotEmpty) {
+        message = errorContent.first.toString();
+      } else if (errorContent is Map) {
+        message = errorContent.values.first.toString();
+      } else {
+        message = errorContent.toString();
+      }
+    }
 
     if (e.type == DioExceptionType.connectionError ||
         e.type == DioExceptionType.connectionTimeout) {
@@ -92,7 +81,7 @@ class ApiClient {
     return switch (e.response?.statusCode) {
       400 => ValidationException(message ?? 'Invalid request'),
       401 => UnauthorizedException(message ?? 'Session expired'),
-      404 => NotFoundException(message ?? 'Not found'),
+      404 => NotFoundException(message ?? 'Resource not found'),
       _ => ServerException(message ?? 'Something went wrong'),
     };
   }
