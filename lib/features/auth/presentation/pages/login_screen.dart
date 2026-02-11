@@ -2,6 +2,7 @@
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:legal_defender/common/helpers/app_router.gr.dart';
 import 'package:legal_defender/common/res/l10n.dart';
@@ -31,7 +32,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    // Pass setState as the listener to refresh the "Login" button state automatically
     _manager = LoginControllersManager(onFormChanged: () => setState(() {}));
   }
 
@@ -62,20 +62,28 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Form(
               key: _manager.formKey,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AuthHeader(
-                      title: AppLocalizations.getString(
-                          context, 'auth.welcomeBack'),
-                      subtitle:
-                          AppLocalizations.getString(context, 'auth.signIn')),
+                    title:
+                        AppLocalizations.getString(context, 'auth.welcomeBack'),
+                    subtitle:
+                        AppLocalizations.getString(context, 'auth.signIn'),
+                  ),
                   const SizedBox(height: 40),
+
+                  // Staggered Animation 1: Email Field
                   AuthTextField(
                     controller: _manager.emailController,
                     label: AppLocalizations.getString(context, 'auth.email'),
                     icon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
                     validator: AuthValidators.validateEmail,
-                  ),
+                  ).animate().fadeIn().slideY(begin: 0.1, end: 0),
+
                   const SizedBox(height: 16),
+
+                  // Staggered Animation 2: Password Field (100ms delay)
                   AuthTextField(
                     controller: _manager.passwordController,
                     label: AppLocalizations.getString(context, 'auth.password'),
@@ -86,21 +94,26 @@ class _LoginScreenState extends State<LoginScreen> {
                         () => _isPasswordVisible = !_isPasswordVisible),
                     validator: (v) =>
                         AuthValidators.validateRequired(v, 'Password'),
-                  ),
+                  ).animate(delay: 100.ms).fadeIn().slideY(begin: 0.1, end: 0),
+
                   const SizedBox(height: 32),
+
+                  // Staggered Animation 3: Login Button (200ms delay)
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
+                      final isReady = _manager.canAttemptLogin &&
+                          state.status != AuthStatus.loading;
+
                       return AuthButton(
                         text: AppLocalizations.getString(
                             context, 'auth.signInLink'),
                         heroTag: 'login_button',
-                        isEnabled: _manager.canAttemptLogin &&
-                            state.status != AuthStatus.loading,
+                        isEnabled: isReady,
                         isLoading: state.status == AuthStatus.loading,
                         onPressed: _handleLogin,
                       );
                     },
-                  ),
+                  ).animate(delay: 200.ms).fadeIn().slideY(begin: 0.1, end: 0),
                 ],
               ),
             ),

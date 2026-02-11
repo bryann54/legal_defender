@@ -131,8 +131,7 @@ class CustomAlertDialog extends StatelessWidget {
                         message!,
                         style: messageStyle ??
                             theme.textTheme.bodyMedium?.copyWith(
-                              color:
-                                  theme.colorScheme.onSurface
+                              color: theme.colorScheme.onSurface
                                   .withValues(alpha: 0.7),
                               height: 1.5,
                             ),

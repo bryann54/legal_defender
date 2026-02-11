@@ -44,7 +44,9 @@ class _SplashScreenState extends State<SplashScreen> {
     // 2. Navigation logic
     switch (state.status) {
       case AuthStatus.authenticated:
-        context.router.replace(MainRoute());
+        // context.router.replace(MainRoute());
+        context.router.replace(const AuthRoute());
+
       case AuthStatus.unauthenticated:
       case AuthStatus.error:
         context.router.replace(const AuthRoute());

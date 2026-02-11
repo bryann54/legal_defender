@@ -489,19 +489,22 @@
     "skip": "Omitir",
     "next": "Siguiente",
     "getStarted": "Comenzar",
-    "pages": {
-      "guidance": {
-        "title": "Orientación Legal Experta",
-        "subtitle": "Navega situaciones legales complejas con confianza. Obtén acceso instantáneo a conocimiento legal experto adaptado a tus necesidades."
-      },
-      "secure": {
-        "title": "Seguro y Privado",
-        "subtitle": "Tus asuntos legales se mantienen confidenciales. El cifrado de extremo a extremo garantiza que tu información sensible esté siempre protegida."
-      },
-      "available": {
-        "title": "Siempre Disponible",
-        "subtitle": "Ayuda legal cuando más la necesitas. Acceso 24/7 a recursos legales, documentos y orientación al alcance de tu mano."
-      }
-    }
-  }
+  "pages": {
+  "guidance": {
+    "title": "Obtén ayuda cuando importa",
+    "subtitle": "Alertas instantáneas y notificaciones a contactos de emergencia."
+  },
+  "secure": {
+    "title": "Registro de Seguridad",
+    "subtitle": "Graba encuentros de forma segura con respaldo y protección automática."
+  },
+  "available": {
+    "title": "Conéctate con abogados",
+    "subtitle": "Conéctate con profesionales legales de confianza en tu área."
+  },
+  "resources": {
+    "title": "Accede a recursos legales",
+    "subtitle": "Explora documentos legales, guías y materiales educativos."
+}
+  }}
 }
