@@ -22,10 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Start logic immediately
     context.read<AuthBloc>().add(const CheckAuthStatusEvent());
-
-    // Start the timer and trigger navigation attempt when done
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         _attemptNavigation(context.read<AuthBloc>().state);
@@ -34,8 +31,6 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _attemptNavigation(AuthState state) {
-    // 1. Logic Guard: Don't navigate if we are still 'loading' or 'initial'
-    // even if the 3 seconds are up.
     if (state.status == AuthStatus.loading ||
         state.status == AuthStatus.initial) {
       return;
@@ -44,8 +39,8 @@ class _SplashScreenState extends State<SplashScreen> {
     // 2. Navigation logic
     switch (state.status) {
       case AuthStatus.authenticated:
-        // context.router.replace(MainRoute());
-        context.router.replace(const AuthRoute());
+        context.router.replace(MainRoute());
+        //  context.router.replace(AuthRoute());
 
       case AuthStatus.unauthenticated:
       case AuthStatus.error:
@@ -60,8 +55,6 @@ class _SplashScreenState extends State<SplashScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return BlocListener<AuthBloc, AuthState>(
-      // Only listen, don't rebuild the whole body for status changes
-      // unless you actually need to show a loader.
       listener: (context, state) => _attemptNavigation(state),
       child: Scaffold(
         backgroundColor: isDark

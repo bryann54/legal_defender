@@ -47,28 +47,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onSignUp(SignUpEvent event, Emitter<AuthState> emit) async {
+Future<void> _onSignUp(SignUpEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStatus.loading));
+
     final result = await _signUpUseCase({
       'email': event.email,
       'password': event.password,
       'username': event.username,
       'phone_number': event.phoneNumber,
       'state': event.state,
+      'profile_type': event.profileType,
+      'language': event.language,
       if (event.referralCode != null) 'referral_code': event.referralCode,
     });
-    result.fold(
-      (failure) => emit(state.copyWith(
+
+    await result.fold(
+      (failure) async => emit(state.copyWith(
         status: AuthStatus.error,
         errorMessage: _mapFailureToMessage(failure),
       )),
-      (user) =>
-          emit(state.copyWith(status: AuthStatus.authenticated, user: user)),
+      (user) async {
+        add(SignInEvent(email: event.email, password: event.password));
+      },
     );
   }
-
-
-
   Future<void> _onCheckAuthStatus(
       CheckAuthStatusEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStatus.loading));
