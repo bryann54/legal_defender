@@ -20,13 +20,16 @@
     "home": "Inicio",
     "ok": "OK",
     "explore": "Explorar",
-    "chat": "charlar",
-    "chats": "charlas",
+    "chat": "Chat",
+    "chats": "Chats",
     "settings": "Configuración",
     "goToLogin": "Ir a Iniciar Sesión",
     "share": "Compartir",
     "goBack": "Volver",
-    "store": "Tienda"
+    "store": "Tienda",
+    "profile": "Perfil",
+    "select": "Seleccionar",
+    "selectOption": "Selecciona una opción"
   },
   "language": {
     "selectLanguage": "Seleccionar Idioma",
@@ -37,11 +40,18 @@
   "auth": {
     "welcomeBack": "Bienvenido de Nuevo",
     "signIn": "Inicia sesión en tu cuenta",
+    "logIn": "Iniciar Sesión",
     "email": "Correo Electrónico",
     "password": "Contraseña",
+    
+    "profileType": "Tipo de perfil",
+    "state": "Estado",
+    "language": "Idioma preferido",
+    "referralCode": "Código de referido (opcional)",
+    "referralCodeHint": "Ingresa el código de referido si tienes uno"
+,
     "confirmPassword": "Confirmar Contraseña",
-    "first name": "Nombre de Pila",
-    "last name": "Apellido",
+    "username": "Nombre de Usuario",
     "phoneNumber": "Número de Teléfono",
     "createAccount": "Crear Cuenta",
     "setupAccount": "Configura tu cuenta de Legal Defender",
@@ -52,10 +62,10 @@
     "processing": "Procesando...",
     "settingThingsUp": "Preparando todo para ti...",
     "redirecting": "Redirigiendo...",
-    "emailRequired": "el correo electrónico es requerido",
-    "passwordRequired": "la contraseña es requerida",
-    "usernameRequired": "el nombre de usuario es requerido",
-    "phoneRequired": "el número de teléfono es requerido",
+    "emailRequired": "El correo electrónico es requerido",
+    "passwordRequired": "La contraseña es requerida",
+    "usernameRequired": "El nombre de usuario es requerido",
+    "phoneRequired": "El número de teléfono es requerido",
     "confirmPasswordRequired": "La confirmación de contraseña es requerida",
     "invalidEmail": "Dirección de correo electrónico inválida",
     "passwordTooShort": "La contraseña debe tener al menos 5 caracteres",
@@ -95,7 +105,27 @@
     "invalidRequest": "Solicitud inválida. Por favor verifica tu información.",
     "codeExpired": "El código de verificación expiró o es inválido. Por favor comienza de nuevo.",
     "missingInformation": "Información requerida faltante",
-    "verifyCodeError": "Error al verificar el código. Por favor intenta de nuevo."
+    "verifyCodeError": "Error al verificar el código. Por favor intenta de nuevo.",
+    "emailTooLong": "La dirección de correo electrónico es demasiado larga",
+    "emailConsecutiveDots": "El correo electrónico no puede contener puntos consecutivos",
+    "invalidEmailDomain": "Por favor, ingresa un dominio de correo válido",
+    
+    "usernameTooShort": "El nombre de usuario debe tener al menos 3 caracteres",
+    "usernameTooLong": "Nombre de usuario demasiado largo (máximo 30 caracteres)",
+    "usernameInvalidCharacters": "El nombre de usuario solo puede contener letras, números, guiones bajos y puntos",
+    "usernameInvalidStartEnd": "El nombre de usuario no puede comenzar ni terminar con punto o guion bajo",
+    "usernameConsecutiveSpecial": "El nombre de usuario no puede contener caracteres especiales consecutivos",
+  
+    "passwordTooLong": "La contraseña es demasiado larga (máximo 128 caracteres)",
+    "passwordRequiresUppercase": "La contraseña debe contener al menos una letra mayúscula",
+    "passwordRequiresLowercase": "La contraseña debe contener al menos una letra minúscula",
+    "passwordRequiresNumber": "La contraseña debe contener al menos un número",
+    "passwordRequiresSpecial": "La contraseña debe contener al menos un carácter especial",
+    "passwordCommon": "Esta contraseña es muy común. Por favor, elige una más segura",
+    "passwordSequential": "La contraseña no debe contener caracteres secuenciales",
+    
+    "phoneInvalidCharacters": "El número de teléfono solo puede contener dígitos y caracteres de formato (espacios, guiones, paréntesis, +)",
+    "phoneInvalidLength": "Por favor, ingresa un número de teléfono válido (10-15 dígitos)"
   },
   "dashboard": {
     "home": "Inicio",
@@ -122,7 +152,7 @@
     "goToProfile": "Ir al Perfil",
     "sosSendDocuments": "SOS - Enviar Documentos",
     "addContactsOrAttorney": "Agrega contactos de emergencia o selecciona un abogado para usar SOS",
-    "aiLegalDefender": "Chatea con tu Defensor Legal IA",
+    "aiLegalDefender": "Chatea con tu Asesor Legal IA",
     "legalGuidance247": "Obtén orientación legal 24/7",
     "resourcesAndRights": "Recursos y Derechos",
     "constitutionsLegalDocs": "Constituciones y documentos legales",
@@ -141,7 +171,7 @@
     "profile": "Perfil",
     "manageAccount": "Administra tu cuenta",
     "notifications": "Notificaciones",
-    "alertPreferences": "Preferencias de alertas",
+    "alertPreferences": "Administrar sonidos de notificación",
     "privacy": "Privacidad",
     "securitySettings": "Configuración de seguridad",
     "darkMode": "Modo Oscuro",
@@ -154,11 +184,11 @@
     "referralProgram": "Refiere amigos y gana descuentos",
     "logOut": "Cerrar Sesión",
     "loggingOut": "Cerrando sesión...",
-    "logoutConfirm": "Cerrar Sesión",
     "logoutMessage": "¿Estás seguro de que quieres cerrar sesión?",
     "logoutError": "Error al cerrar sesión. Por favor, inténtalo de nuevo.",
     "permissions": "Permisos",
     "viewPermissionExplanations": "Ver por qué necesitamos permisos",
+    "managePermissions": "Administrar permisos de la aplicación",
     "required": "Permisos Requeridos",
     "missingMessage": "La aplicación necesita los siguientes permisos para funcionar correctamente:\n\n{permissions}\n\nPor favor, otorga estos permisos en la configuración de tu dispositivo.",
     "openSettings": "Abrir Configuración",
@@ -173,10 +203,10 @@
     "deleteAccountDescription": "Eliminar permanentemente tu cuenta y todos los datos",
     "deleteAccountWarning": "Advertencia: Esta acción no se puede deshacer",
     "deleteAccountConsequences": "Eliminar tu cuenta eliminará permanentemente:",
-    "deleteAccountConsequence1": "Eliminar toda tu información personal y datos",
-    "deleteAccountConsequence2": "Eliminar todos tus formularios y documentos guardados",
-    "deleteAccountConsequence3": "Eliminar tus contactos de emergencia y conexiones con abogados",
-    "deleteAccountConsequence4": "Cancelar cualquier suscripción activa",
+    "deleteAccountConsequence1": "Toda tu información personal y datos",
+    "deleteAccountConsequence2": "Todos tus formularios y documentos guardados",
+    "deleteAccountConsequence3": "Tus contactos de emergencia y conexiones con abogados",
+    "deleteAccountConsequence4": "Cualquier suscripción activa",
     "deleteAccountTypePrompt": "Escribe 'Eliminar Cuenta' para confirmar:",
     "deleteAccountTypePlaceholder": "Eliminar Cuenta",
     "deleteAccountConfirmCheckbox": "Entiendo que esta acción es permanente y no se puede deshacer",
@@ -200,6 +230,8 @@
     "title": "Perfil",
     "welcome": "Bienvenido",
     "welcomeTo": "Bienvenido a",
+    "account": "Cuenta",
+    "preferences": "Preferencias",
     "accountDetails": "Detalles de la Cuenta",
     "manageAccountDetails": "Administra los detalles de tu cuenta",
     "paymentHistory": "Historial de Pagos",
@@ -243,7 +275,7 @@
     "searchState": "Buscar estados...",
     "uniqueId": "ID Único",
     "trustLevel": "Nivel de Confianza",
-    "trustLevelHelp": "Los niveles de confianza se obtienen mediante procesos de verificación y KYC (Conozca a Su Cliente). Complete la verificación de su perfil para aumentar su nivel de confianza y asegurar que la información que comparte sea precisa y confiable.",
+    "trustLevelHelp": "Los niveles de confianza se obtienen mediante procesos de verificación y KYC (Conozca a Su Cliente). Completa la verificación de tu perfil para aumentar tu nivel de confianza y asegurar que la información que compartes sea precisa y confiable.",
     "loadingProfile": "Cargando perfil...",
     "failedToLoadProfile": "Error al cargar el perfil",
     "retry": "Reintentar",
@@ -422,8 +454,8 @@
     "download": "Descargar"
   },
   "chatbot": {
-    "title": "Asistente Legal IA",
-    "welcomeMessage": "👋 ¡Hola! Soy tu Defensor Legal IA. ¿Cómo puedo ayudarte hoy?",
+    "title": "Asesor",
+    "welcomeMessage": "👋 ¡Hola! Soy tu Asesor Legal IA. ¿Cómo puedo ayudarte hoy?",
     "placeholder": "Escribe tu mensaje...",
     "send": "Enviar",
     "alwaysAvailable": "Siempre disponible",
@@ -451,6 +483,27 @@
     "invalidRequest": "Solicitud inválida. Por favor, verifica tu grabación e inténtalo de nuevo.",
     "authenticationError": "Error de autenticación. Por favor, inicia sesión de nuevo.",
     "networkError": "Error de red. Por favor, verifica tu conexión e inténtalo de nuevo."
+  },
+  "validation": {
+    "required": "{field} es requerido",
+    "invalidEmail": "Dirección de correo electrónico inválida",
+    "passwordTooShort": "La contraseña debe tener al menos 5 caracteres",
+    "passwordsDontMatch": "Las contraseñas no coinciden",
+    "invalidPhone": "Número de teléfono inválido",
+    "usernameTooShort": "El nombre de usuario debe tener al menos 3 caracteres",
+    "usernameTooLong": "Nombre de usuario demasiado largo (máximo 30 caracteres)",
+    "usernameInvalidCharacters": "El nombre de usuario solo puede contener letras, números, guiones bajos y puntos",
+    "usernameInvalidStartEnd": "El nombre de usuario no puede comenzar ni terminar con punto o guion bajo",
+    "usernameConsecutiveSpecial": "El nombre de usuario no puede contener caracteres especiales consecutivos",
+    "passwordTooLong": "La contraseña es demasiado larga (máximo 128 caracteres)",
+    "passwordRequiresUppercase": "La contraseña debe contener al menos una letra mayúscula",
+    "passwordRequiresLowercase": "La contraseña debe contener al menos una letra minúscula",
+    "passwordRequiresNumber": "La contraseña debe contener al menos un número",
+    "passwordRequiresSpecial": "La contraseña debe contener al menos un carácter especial",
+    "passwordCommon": "Esta contraseña es muy común. Por favor, elige una más segura",
+    "passwordSequential": "La contraseña no debe contener caracteres secuenciales",
+    "phoneInvalidCharacters": "El número de teléfono solo puede contener dígitos y caracteres de formato (espacios, guiones, paréntesis, +)",
+    "phoneInvalidLength": "Por favor, ingresa un número de teléfono válido (10-15 dígitos)"
   },
   "subscription": {
     "title": "Suscripción",
@@ -480,28 +533,27 @@
     "subscriptionRequired": "Se requiere una suscripción para acceder a esta función.",
     "startSubscription": "Iniciar Suscripción"
   },
-  
   "onboarding": {
     "title": "Bienvenido",
     "skip": "Omitir",
     "next": "Siguiente",
     "getStarted": "Comenzar",
-    "pages": {
-      "guidance": {
-        "title": "Orientación Legal Experta",
-        "subtitle": "Navegue situaciones legales complejas con confianza. Obtenga acceso instantáneo a conocimiento legal experto adaptado a sus necesidades."
-      },
-      "secure": {
-        "title": "Seguro y Privado",
-        "subtitle": "Sus asuntos legales se mantienen confidenciales. El cifrado de extremo a extremo garantiza que su información sensible esté siempre protegida."
-      },
-      "available": {
-        "title": "Siempre Disponible",
-        "subtitle": "Ayuda legal cuando más la necesita. Acceso 24/7 a recursos legales, documentos y orientación al alcance de su mano."
-      }
-    }
-  }
+  "pages": {
+  "guidance": {
+    "title": "Obtén ayuda cuando importa",
+    "subtitle": "Alertas instantáneas y notificaciones a contactos de emergencia."
+  },
+  "secure": {
+    "title": "Registro de Seguridad",
+    "subtitle": "Graba encuentros de forma segura con respaldo y protección automática."
+  },
+  "available": {
+    "title": "Conéctate con abogados",
+    "subtitle": "Conéctate con profesionales legales de confianza en tu área."
+  },
+  "resources": {
+    "title": "Accede a recursos legales",
+    "subtitle": "Explora documentos legales, guías y materiales educativos."
 }
-  
-
-  
+  }}
+}

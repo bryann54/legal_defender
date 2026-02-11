@@ -1,11 +1,15 @@
-import 'dart:ui';
+// lib/common/utils/auth_validators.dart
+
+import 'package:flutter/material.dart';
+import 'package:legal_defender/common/res/l10n.dart'; // adjust import path as needed
 
 class AuthValidators {
   AuthValidators._();
 
-  static String? validateEmail(String? value) {
+  // -------------------- EMAIL --------------------
+  static String? validateEmail(BuildContext context, String? value) {
     if (value == null || value.trim().isEmpty) {
-      return 'Email address is required';
+      return AppLocalizations.getString(context, 'auth.emailRequired');
     }
 
     final trimmedValue = value.trim();
@@ -14,76 +18,112 @@ class AuthValidators {
     );
 
     if (!emailRegex.hasMatch(trimmedValue)) {
-      return 'Please enter a valid email address';
+      return AppLocalizations.getString(context, 'auth.invalidEmail');
     }
 
-    // Additional checks
     if (trimmedValue.length > 254) {
-      return 'Email address is too long';
+      return AppLocalizations.getString(context, 'auth.emailTooLong');
     }
 
-    // Check for consecutive dots
     if (trimmedValue.contains('..')) {
-      return 'Email address cannot contain consecutive dots';
+      return AppLocalizations.getString(context, 'auth.emailConsecutiveDots');
     }
 
-    // Check for valid domain
     final parts = trimmedValue.split('@');
     if (parts.length != 2) {
-      return 'Please enter a valid email address';
+      return AppLocalizations.getString(context, 'auth.invalidEmailDomain');
     }
 
     final domain = parts[1];
     if (!domain.contains('.')) {
-      return 'Please enter a valid email domain';
+      return AppLocalizations.getString(context, 'auth.invalidEmailDomain');
     }
 
-    // Check domain length
     final domainParts = domain.split('.');
     if (domainParts.any((part) => part.isEmpty)) {
-      return 'Please enter a valid email domain';
+      return AppLocalizations.getString(context, 'auth.invalidEmailDomain');
     }
 
-    // Check TLD length (minimum 2 characters)
     if (domainParts.last.length < 2) {
-      return 'Please enter a valid email domain';
+      return AppLocalizations.getString(context, 'auth.invalidEmailDomain');
     }
 
     return null;
   }
 
-  // Password validation with comprehensive security requirements
-  static String? validatePassword(String? value, {bool isStrict = true}) {
+  // -------------------- USERNAME --------------------
+  static String? validateUsername(BuildContext context, String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return AppLocalizations.getString(context, 'auth.usernameRequired');
+    }
+
+    final trimmedValue = value.trim();
+
+    if (trimmedValue.length < 3) {
+      return AppLocalizations.getString(context, 'auth.usernameTooShort');
+    }
+
+    if (trimmedValue.length > 30) {
+      return AppLocalizations.getString(context, 'auth.usernameTooLong');
+    }
+
+    final usernameRegex = RegExp(r'^[a-zA-Z0-9_.]+$');
+    if (!usernameRegex.hasMatch(trimmedValue)) {
+      return AppLocalizations.getString(
+          context, 'auth.usernameInvalidCharacters');
+    }
+
+    if (trimmedValue.startsWith('.') ||
+        trimmedValue.startsWith('_') ||
+        trimmedValue.endsWith('.') ||
+        trimmedValue.endsWith('_')) {
+      return AppLocalizations.getString(
+          context, 'auth.usernameInvalidStartEnd');
+    }
+
+    if (trimmedValue.contains('..') ||
+        trimmedValue.contains('__') ||
+        trimmedValue.contains('_.') ||
+        trimmedValue.contains('._')) {
+      return AppLocalizations.getString(
+          context, 'auth.usernameConsecutiveSpecial');
+    }
+
+    return null;
+  }
+
+  // -------------------- PASSWORD --------------------
+  static String? validatePassword(
+    BuildContext context,
+    String? value, {
+    bool isStrict = true,
+  }) {
     if (value == null || value.isEmpty) {
-      return 'Password is required';
+      return AppLocalizations.getString(context, 'auth.passwordRequired');
     }
 
     if (value.length < 8) {
-      return 'Password must be at least 8 characters';
+      return AppLocalizations.getString(context, 'auth.passwordTooShort');
     }
 
     if (isStrict) {
-      // Check for uppercase letter
       if (!value.contains(RegExp(r'[A-Z]'))) {
-        return 'Password must contain at least one uppercase letter';
+        return AppLocalizations.getString(
+            context, 'auth.passwordRequiresUppercase');
       }
-
-      // Check for lowercase letter
       if (!value.contains(RegExp(r'[a-z]'))) {
-        return 'Password must contain at least one lowercase letter';
+        return AppLocalizations.getString(
+            context, 'auth.passwordRequiresLowercase');
       }
-
-      // Check for digit
       if (!value.contains(RegExp(r'[0-9]'))) {
-        return 'Password must contain at least one number';
+        return AppLocalizations.getString(
+            context, 'auth.passwordRequiresNumber');
       }
-
-      // Check for special character
       if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-        return 'Password must contain at least one special character';
+        return AppLocalizations.getString(
+            context, 'auth.passwordRequiresSpecial');
       }
 
-      // Check for common weak passwords
       final commonPasswords = [
         'password',
         '12345678',
@@ -93,102 +133,46 @@ class AuthValidators {
         'admin123',
       ];
       if (commonPasswords.contains(value.toLowerCase())) {
-        return 'This password is too common. Please choose a stronger password';
+        return AppLocalizations.getString(context, 'auth.passwordCommon');
       }
 
-      // Check for sequential characters
       if (_hasSequentialChars(value)) {
-        return 'Password should not contain sequential characters';
+        return AppLocalizations.getString(context, 'auth.passwordSequential');
       }
     }
 
     if (value.length > 128) {
-      return 'Password is too long (maximum 128 characters)';
+      return AppLocalizations.getString(context, 'auth.passwordTooLong');
     }
 
     return null;
   }
 
-  // Confirm password validation
+  // -------------------- CONFIRM PASSWORD --------------------
   static String? validateConfirmPassword(
+    BuildContext context,
     String? value,
     String? originalPassword,
   ) {
     if (value == null || value.isEmpty) {
-      return 'Please confirm your password';
+      return AppLocalizations.getString(
+          context, 'auth.confirmPasswordRequired');
     }
 
     if (value != originalPassword) {
-      return 'Passwords do not match';
+      return AppLocalizations.getString(context, 'auth.passwordsDontMatch');
     }
 
     return null;
   }
 
-  // First name validation
-  static String? validateFirstName(String? value) {
+  // -------------------- PHONE --------------------
+  static String? validatePhone(BuildContext context, String? value,
+      {bool isRequired = true}) {
     if (value == null || value.trim().isEmpty) {
-      return 'First name is required';
-    }
-
-    final trimmedValue = value.trim();
-
-    if (trimmedValue.length < 2) {
-      return 'First name must be at least 2 characters';
-    }
-
-    if (trimmedValue.length > 50) {
-      return 'First name is too long (maximum 50 characters)';
-    }
-
-    // Allow only letters, spaces, hyphens, and apostrophes
-    final nameRegex = RegExp(r"^[a-zA-Z\s\-']+$");
-    if (!nameRegex.hasMatch(trimmedValue)) {
-      return 'First name can only contain letters, spaces, hyphens, and apostrophes';
-    }
-
-    // Check for excessive spaces
-    if (trimmedValue.contains(RegExp(r'\s{2,}'))) {
-      return 'First name cannot contain consecutive spaces';
-    }
-
-    return null;
-  }
-
-  // Last name validation
-  static String? validateLastName(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Last name is required';
-    }
-
-    final trimmedValue = value.trim();
-
-    if (trimmedValue.length < 2) {
-      return 'Last name must be at least 2 characters';
-    }
-
-    if (trimmedValue.length > 50) {
-      return 'Last name is too long (maximum 50 characters)';
-    }
-
-    // Allow only letters, spaces, hyphens, and apostrophes
-    final nameRegex = RegExp(r"^[a-zA-Z\s\-']+$");
-    if (!nameRegex.hasMatch(trimmedValue)) {
-      return 'Last name can only contain letters, spaces, hyphens, and apostrophes';
-    }
-
-    // Check for excessive spaces
-    if (trimmedValue.contains(RegExp(r'\s{2,}'))) {
-      return 'Last name cannot contain consecutive spaces';
-    }
-
-    return null;
-  }
-
-  // Phone number validation (optional, for future use)
-  static String? validatePhoneNumber(String? value, {bool isRequired = false}) {
-    if (value == null || value.trim().isEmpty) {
-      return isRequired ? 'Phone number is required' : null;
+      return isRequired
+          ? AppLocalizations.getString(context, 'auth.phoneRequired')
+          : null;
     }
 
     final trimmedValue = value.trim();
@@ -196,28 +180,83 @@ class AuthValidators {
     // Remove common formatting characters
     final digitsOnly = trimmedValue.replaceAll(RegExp(r'[\s\-\(\)\+]'), '');
 
-    // Check if it contains only digits after removing formatting
     if (!RegExp(r'^[0-9]+$').hasMatch(digitsOnly)) {
-      return 'Phone number can only contain digits and formatting characters';
+      return AppLocalizations.getString(context, 'auth.phoneInvalidCharacters');
     }
 
-    // Check length (allowing for international numbers)
     if (digitsOnly.length < 10 || digitsOnly.length > 15) {
-      return 'Please enter a valid phone number';
+      return AppLocalizations.getString(context, 'auth.phoneInvalidLength');
     }
 
     return null;
   }
 
-  // Generic required field validator
-  static String? validateRequired(String? value, String fieldName) {
+  // -------------------- GENERIC REQUIRED --------------------
+  static String? validateRequired(
+    BuildContext context,
+    String? value,
+    String fieldName, {
+    String? customMessageKey,
+  }) {
     if (value == null || value.trim().isEmpty) {
-      return '$fieldName is required';
+      if (customMessageKey != null) {
+        return AppLocalizations.getString(context, customMessageKey);
+      }
+      return '$fieldName is required'; // fallback – better to always provide a key
     }
     return null;
   }
 
-  // Helper method to check for sequential characters
+  // -------------------- PASSWORD STRENGTH --------------------
+  static int calculatePasswordStrength(String password) {
+    if (password.isEmpty) return 0;
+
+    int strength = 0;
+
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+
+    if (password.contains(RegExp(r'[A-Z]'))) strength++;
+    if (password.contains(RegExp(r'[a-z]'))) strength++;
+    if (password.contains(RegExp(r'[0-9]'))) strength++;
+    if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) strength++;
+
+    return strength > 4 ? 4 : strength;
+  }
+
+  static String getPasswordStrengthText(BuildContext context, int strength) {
+    switch (strength) {
+      case 0:
+      case 1:
+        return AppLocalizations.getString(context, 'common.weak');
+      case 2:
+        return AppLocalizations.getString(context, 'common.fair');
+      case 3:
+        return AppLocalizations.getString(context, 'common.good');
+      case 4:
+        return AppLocalizations.getString(context, 'common.strong');
+      default:
+        return AppLocalizations.getString(context, 'common.weak');
+    }
+  }
+
+  static Color getPasswordStrengthColor(int strength) {
+    switch (strength) {
+      case 0:
+      case 1:
+        return const Color(0xFFEF4444); // Red
+      case 2:
+        return const Color(0xFFF59E0B); // Orange
+      case 3:
+        return const Color(0xFF3B82F6); // Blue
+      case 4:
+        return const Color(0xFF10B981); // Green
+      default:
+        return const Color(0xFFEF4444);
+    }
+  }
+
+  // -------------------- HELPERS --------------------
   static bool _hasSequentialChars(String password) {
     final sequences = [
       '0123456789',
@@ -235,7 +274,6 @@ class AuthValidators {
         if (lowerPassword.contains(subSequence)) {
           return true;
         }
-        // Check reverse sequence
         if (lowerPassword.contains(subSequence.split('').reversed.join())) {
           return true;
         }
@@ -243,59 +281,5 @@ class AuthValidators {
     }
 
     return false;
-  }
-
-  // Password strength calculator (returns 0-4)
-  static int calculatePasswordStrength(String password) {
-    if (password.isEmpty) return 0;
-
-    int strength = 0;
-
-    // Length check
-    if (password.length >= 8) strength++;
-    if (password.length >= 12) strength++;
-
-    // Complexity checks
-    if (password.contains(RegExp(r'[A-Z]'))) strength++;
-    if (password.contains(RegExp(r'[a-z]'))) strength++;
-    if (password.contains(RegExp(r'[0-9]'))) strength++;
-    if (password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) strength++;
-
-    // Cap at 4
-    return strength > 4 ? 4 : strength;
-  }
-
-  // Get password strength text
-  static String getPasswordStrengthText(int strength) {
-    switch (strength) {
-      case 0:
-      case 1:
-        return 'Weak';
-      case 2:
-        return 'Fair';
-      case 3:
-        return 'Good';
-      case 4:
-        return 'Strong';
-      default:
-        return 'Weak';
-    }
-  }
-
-  // Get password strength color
-  static Color getPasswordStrengthColor(int strength) {
-    switch (strength) {
-      case 0:
-      case 1:
-        return const Color(0xFFEF4444); // Red
-      case 2:
-        return const Color(0xFFF59E0B); // Orange
-      case 3:
-        return const Color(0xFF3B82F6); // Blue
-      case 4:
-        return const Color(0xFF10B981); // Green
-      default:
-        return const Color(0xFFEF4444);
-    }
   }
 }

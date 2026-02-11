@@ -1,9 +1,8 @@
-// lib/features/auth/presentation/widgets/password_reset_dialog.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:legal_defender/common/res/colors.dart';
+import 'package:legal_defender/common/res/l10n.dart';
 import 'package:legal_defender/common/utils/auth_controllers_manager.dart';
 import 'package:legal_defender/common/utils/auth_validators.dart';
 import 'package:legal_defender/features/auth/presentation/bloc/auth_bloc.dart';
@@ -38,7 +37,8 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
 
   void _validateEmail() {
     final isValid = _controllersManager.hasEmail &&
-        AuthValidators.validateEmail(_controllersManager.email) == null;
+        AuthValidators.validateEmail(context, _controllersManager.email) ==
+            null;
 
     if (_isEmailValid != isValid) {
       setState(() {
@@ -52,6 +52,8 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
       context.read<AuthBloc>().add(
             ResetPasswordEvent(
               email: _controllersManager.email,
+              otp: '',
+              newPassword: '',
             ),
           );
     }
@@ -76,7 +78,8 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                    'Reset instructions sent to ${_controllersManager.email}'),
+                  '${AppLocalizations.getString(context, 'auth.resetPasswordSuccessMessage')} ${_controllersManager.email}',
+                ),
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -87,7 +90,8 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
           } else if (state.status == AuthStatus.error) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('Error: ${state.errorMessage}'),
+                content: Text(
+                    '${AppLocalizations.getString(context, 'common.error')}: ${state.errorMessage}'),
                 behavior: SnackBarBehavior.floating,
                 backgroundColor: Colors.redAccent,
               ),
@@ -139,13 +143,15 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                   fontWeight: FontWeight.w600,
                   color: theme.colorScheme.onSurface,
                 ),
-                child: const Text('Reset Password'),
+                child: Text(
+                    AppLocalizations.getString(context, 'auth.resetPassword')),
               ),
               const SizedBox(height: 8),
 
               // Subtitle
               Text(
-                'We\'ll send password reset instructions to your email',
+                AppLocalizations.getString(
+                    context, 'auth.forgotPasswordDescription'),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 14,
@@ -159,10 +165,11 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                 key: _controllersManager.formKey,
                 child: AuthTextField(
                   controller: _controllersManager.emailController,
-                  label: 'Email Address',
+                  label: AppLocalizations.getString(context, 'auth.email'),
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
-                  validator: AuthValidators.validateEmail,
+                  validator: (value) =>
+                      AuthValidators.validateEmail(context, value),
                 ),
               ),
               const SizedBox(height: 32),
@@ -185,7 +192,7 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                         ),
                       ),
                       child: Text(
-                        'Cancel',
+                        AppLocalizations.getString(context, 'common.cancel'),
                         style: GoogleFonts.poppins(
                           fontWeight: FontWeight.w500,
                           color: theme.colorScheme.onSurface,
@@ -245,7 +252,8 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                                     ),
                                   )
                                 : Text(
-                                    'Send Instructions',
+                                    AppLocalizations.getString(
+                                        context, 'auth.sendCode'),
                                     style: GoogleFonts.poppins(
                                       fontWeight: FontWeight.w500,
                                       color: _isEmailValid

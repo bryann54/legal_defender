@@ -2,206 +2,119 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:injectable/injectable.dart';
+import 'package:legal_defender/core/errors/failures.dart';
 import 'package:legal_defender/features/auth/domain/usecases/auth_usecases.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 @injectable
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final SignInWithEmailAndPasswordUseCase _signInWithEmailAndPassword;
-  final SignUpWithEmailAndPasswordUseCase _signUpWithEmailAndPassword;
+  final SignInUseCase _signInUseCase;
+  final SignUpUseCase _signUpUseCase;
   final SignOutUseCase _signOutUseCase;
-  final GetAuthStateChangesUseCase _getAuthStateChanges;
+  final GetAuthStateUseCase _getAuthStateUseCase;
   final ResetPasswordUseCase _resetPasswordUseCase;
-  final ChangePasswordUseCase _changePasswordUseCase;
-  final VerifyOtpUseCase _verifyOtpUseCase;
-  final SendOtpUseCase _sendOtpUseCase;
 
   AuthBloc({
-    required SignInWithEmailAndPasswordUseCase signInWithEmailAndPassword,
-    required SignUpWithEmailAndPasswordUseCase signUpWithEmailAndPassword,
+    required SignInUseCase signInUseCase,
+    required SignUpUseCase signUpUseCase,
     required SignOutUseCase signOutUseCase,
-    required GetAuthStateChangesUseCase getAuthStateChanges,
+    required GetAuthStateUseCase getAuthStateUseCase,
     required ResetPasswordUseCase resetPasswordUseCase,
-    required ChangePasswordUseCase changePasswordUseCase,
-    required VerifyOtpUseCase verifyOtpUseCase,
-    required SendOtpUseCase sendOtpUseCase,
-  })  : _signInWithEmailAndPassword = signInWithEmailAndPassword,
-        _signUpWithEmailAndPassword = signUpWithEmailAndPassword,
+  })  : _signInUseCase = signInUseCase,
+        _signUpUseCase = signUpUseCase,
         _signOutUseCase = signOutUseCase,
-        _getAuthStateChanges = getAuthStateChanges,
+        _getAuthStateUseCase = getAuthStateUseCase,
         _resetPasswordUseCase = resetPasswordUseCase,
-        _changePasswordUseCase = changePasswordUseCase,
-        _verifyOtpUseCase = verifyOtpUseCase,
-        _sendOtpUseCase = sendOtpUseCase,
         super(const AuthState()) {
-    on<SignInWithEmailAndPasswordEvent>(_onSignInWithEmailAndPassword);
-    on<SignUpWithEmailAndPasswordEvent>(_onSignUpWithEmailAndPassword);
+    on<SignInEvent>(_onSignIn);
+    on<SignUpEvent>(_onSignUp);
     on<SignOutEvent>(_onSignOut);
     on<CheckAuthStatusEvent>(_onCheckAuthStatus);
     on<ResetPasswordEvent>(_onResetPassword);
-    on<ChangePasswordEvent>(_onChangePassword);
-    on<VerifyOtpEvent>(_onVerifyOtp);
-    on<SendOtpEvent>(_onSendOtp);
   }
 
-  Future<void> _onSignInWithEmailAndPassword(
-    SignInWithEmailAndPasswordEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+  Future<void> _onSignIn(SignInEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    final result =
-        await _signInWithEmailAndPassword(event.email, event.password);
+    final result = await _signInUseCase(event.email, event.password);
     result.fold(
       (failure) => emit(state.copyWith(
         status: AuthStatus.error,
-        errorMessage: failure.toString(),
+        errorMessage: _mapFailureToMessage(failure),
       )),
-      (user) => emit(state.copyWith(
-        status: AuthStatus.authenticated,
-        user: user,
-      )),
+      (user) =>
+          emit(state.copyWith(status: AuthStatus.authenticated, user: user)),
     );
   }
 
-  Future<void> _onSignUpWithEmailAndPassword(
-    SignUpWithEmailAndPasswordEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+  Future<void> _onSignUp(SignUpEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _signUpWithEmailAndPassword(
-      event.email,
-      event.password,
-      event.firstName,
-      event.lastName,
-      event.profileImage,
-    );
-    result.fold(
-      (failure) => emit(state.copyWith(
+
+    final result = await _signUpUseCase({
+      'email': event.email,
+      'password': event.password,
+      'username': event.username,
+      'phone_number': event.phoneNumber,
+      'state': event.state,
+      'profile_type': event.profileType,
+      'language': event.language,
+      if (event.referralCode != null) 'referral_code': event.referralCode,
+    });
+
+    await result.fold(
+      (failure) async => emit(state.copyWith(
         status: AuthStatus.error,
-        errorMessage: failure.toString(),
+        errorMessage: _mapFailureToMessage(failure),
       )),
-      (user) => emit(state.copyWith(
-        status: AuthStatus.authenticated,
-        user: user,
-      )),
+      (user) async {
+        add(SignInEvent(email: event.email, password: event.password));
+      },
     );
   }
 
-  Future<void> _onSignOut(
-    SignOutEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+  Future<void> _onCheckAuthStatus(
+      CheckAuthStatusEvent event, Emitter<AuthState> emit) async {
+    emit(state.copyWith(status: AuthStatus.loading));
+    await emit.forEach(
+      _getAuthStateUseCase(),
+      onData: (user) => user != null
+          ? state.copyWith(status: AuthStatus.authenticated, user: user)
+          : state.copyWith(status: AuthStatus.unauthenticated, user: null),
+      onError: (error, _) => state.copyWith(
+          status: AuthStatus.error, errorMessage: error.toString()),
+    );
+  }
+
+  Future<void> _onSignOut(SignOutEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStatus.loading));
     final result = await _signOutUseCase();
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.error,
-        errorMessage: failure.toString(),
-      )),
+          status: AuthStatus.error,
+          errorMessage: _mapFailureToMessage(failure))),
       (_) =>
           emit(state.copyWith(status: AuthStatus.unauthenticated, user: null)),
     );
   }
 
-  Future<void> _onCheckAuthStatus(
-    CheckAuthStatusEvent event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(status: AuthStatus.loading));
-    // Listen to auth state changes stream
-    await emit.forEach(
-      _getAuthStateChanges(),
-      onData: (user) {
-        if (user != null) {
-          return state.copyWith(
-            status: AuthStatus.authenticated,
-            user: user,
-          );
-        } else {
-          return state.copyWith(
-            status: AuthStatus.unauthenticated,
-            user: null,
-          );
-        }
-      },
-      onError: (error, stackTrace) {
-        return state.copyWith(
-          status: AuthStatus.error,
-          errorMessage: error.toString(),
-        );
-      },
-    );
-  }
-
   Future<void> _onResetPassword(
-    ResetPasswordEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+      ResetPasswordEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _resetPasswordUseCase(event.email);
+    final result =
+        await _resetPasswordUseCase(event.email, event.otp, event.newPassword);
     result.fold(
       (failure) => emit(state.copyWith(
-        status: AuthStatus.error,
-        errorMessage: failure.toString(),
-      )),
-      (_) => emit(state.copyWith(
-        status: AuthStatus.unauthenticated,
-      )),
+          status: AuthStatus.error,
+          errorMessage: _mapFailureToMessage(failure))),
+      (_) => emit(state.copyWith(status: AuthStatus.passwordReset)),
     );
   }
 
-  Future<void> _onChangePassword(
-    ChangePasswordEvent event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _changePasswordUseCase(
-      event.currentPassword,
-      event.newPassword,
-    );
-    result.fold(
-      (failure) => emit(state.copyWith(
-        status: AuthStatus.error,
-        errorMessage: failure.toString(),
-      )),
-      (_) => emit(state.copyWith(
-        status: AuthStatus.authenticated,
-      )),
-    );
-  }
-
-  Future<void> _onVerifyOtp(
-    VerifyOtpEvent event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _verifyOtpUseCase(event.email, event.otp);
-    result.fold(
-      (failure) => emit(state.copyWith(
-        status: AuthStatus.error,
-        errorMessage: failure.toString(),
-      )),
-      (_) => emit(state.copyWith(
-        status: AuthStatus.unauthenticated,
-      )),
-    );
-  }
-
-  Future<void> _onSendOtp(
-    SendOtpEvent event,
-    Emitter<AuthState> emit,
-  ) async {
-    emit(state.copyWith(status: AuthStatus.loading));
-    final result = await _sendOtpUseCase(event.email);
-    result.fold(
-      (failure) => emit(state.copyWith(
-        status: AuthStatus.error,
-        errorMessage: failure.toString(),
-      )),
-      (_) => emit(state.copyWith(
-        status: AuthStatus.unauthenticated,
-      )),
-    );
+  String _mapFailureToMessage(dynamic failure) {
+    if (failure is ValidationFailure) return failure.error;
+    if (failure is GeneralFailure) return failure.error;
+    if (failure is UnauthorizedFailure) return "Invalid email or password";
+    if (failure is NetworkFailure) return "Check your internet connection";
+    return "An unexpected error occurred";
   }
 }

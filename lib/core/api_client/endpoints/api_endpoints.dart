@@ -2,75 +2,66 @@
 
 class ApiEndpoints {
   // Auth Endpoints
-  static const String authChangePassword = '/auth/change-password/';
   static const String authLogin = '/v1/token/';
-  static const String authMerchantsCreate = '/auth/merchants/create/';
-  static const String authMerchantsDarajaCreate =
-      '/auth/merchants/daraja/create/';
-  static const String authMerchantsDarajaMe = '/auth/merchants/daraja/me/';
-  static const String authMerchantsMe = '/auth/merchants/me/';
-  static const String authMerchantsUpdate = '/auth/merchants/update/';
-  static const String authOtpVerify = '/auth/otp-verify/';
-  static const String authOtp = '/auth/otp/';
-  static const String authRegister = '/auth/register/';
+  static const String authRegister = '/v1/users/';
+  static const String authRefresh = '/v1/token/refresh/';
+  static const String authOtp = '/v1/otp/send/';
+  static const String authOtpVerify = '/v1/otp/verify/';
+  static const String authResetPassword = '/v1/password/reset/';
 
-  // Payments Endpoints
-  static const String paymentsConfirmationCallback =
-      '/payments/confirmation-callback';
-  static const String paymentsCredsTest = '/payments/creds/test/';
-  static const String paymentsExpressPayments = '/payments/express-payments/';
-  static const String paymentsExpressPaymentsTest =
-      '/payments/express-payments/test/';
-  static const String paymentsRegisterUrls = '/payments/register-urls/';
-  static const String paymentsValidationCallback =
-      '/payments/validation-callback';
+  // User Endpoints
+  static const String userProfile = '/v1/users/me/';
+  static const String userUpdate = '/v1/users/me/';
+  static const String userDelete = '/v1/users/me/';
 
-  // Shows Endpoints
-  static const String showsAll = '/shows/all/';
-  static String showBySlug(String slug) => '/shows/all/$slug/';
-  static String showDetails(String slug) => '/shows/all/$slug/details/';
-  static const String showsCacheStatus = '/shows/cache-status/';
-  static const String showsCreate = '/shows/create/';
+  // Emergency Contacts
+  static const String emergencyContacts = '/v1/emergency-contacts/';
+  static String emergencyContactDetail(String id) =>
+      '/v1/emergency-contacts/$id/';
 
-  // Ticket Types Endpoints
-  static const String showsTicketTypesCreate = '/shows/ticket-types/create/';
-  static String showsTicketTypesByShow(String showId) =>
-      '/shows/ticket-types/show/$showId/';
-  static String showsTicketTypesByShowMerchant(String showId) =>
-      '/shows/ticket-types/show/$showId/merchant/';
-  static String showsTicketTypesById(String id) => '/shows/ticket-types/$id/';
+  // Attorneys
+  static const String attorneys = '/v1/attorneys/';
+  static String attorneyDetail(String id) => '/v1/attorneys/$id/';
+  static const String myAttorney = '/v1/attorneys/my-attorney/';
+  static String selectAttorney(String id) => '/v1/attorneys/$id/select/';
 
-  // Tickets Endpoints
-  static const String showsTicketsBulkCreate = '/shows/tickets/bulk-create/';
-  static const String showsTicketsBulkOpenShowCreate =
-      '/shows/tickets/bulk-open-show-create/';
-  static String showsTicketsCustomersCheckin(String stageId) =>
-      '/shows/tickets/customers/$stageId/checkin/';
-  static const String showsTicketsReserve = '/shows/tickets/reserve/';
-  static const String showsTicketsSales = '/shows/tickets/sales/';
-  static String showsTicketsSalesStatus(String stageId) =>
-      '/shows/tickets/sales/$stageId/status/';
-  static String showsTicketsShowSales(String slug) =>
-      '/shows/tickets/show/$slug/sales/';
-  static const String showsTicketsUserPurchases =
-      '/shows/tickets/user/purchases/';
-  static String showsTicketsDetails(String id) => '/shows/tickets/$id/details/';
-  static String showsTicketsPurchaseCart(String id) =>
-      '/shows/tickets/$id/purchase-cart/';
-  static String showsTicketsPurchaseMap(String id) =>
-      '/shows/tickets/$id/purchase-map/';
+  // Documents
+  static const String documents = '/v1/documents/';
+  static String documentDetail(String id) => '/v1/documents/$id/';
+  static const String documentUpload = '/v1/documents/upload/';
 
-  // Venues Endpoints
-  static String venueById(String id) => '/venues/all/$id/';
-  static const String venuesCreate = '/venues/create/';
-  static const String venuesMerchantVenues = '/venues/merchant/venues/';
-  static const String venuesSeatRowsCreate = '/venues/seat-rows/create/';
-  static String venuesSeatRowsUpdate(String id) =>
-      '/venues/seat-rows/$id/update/';
-  static const String venuesSeatsCreate = '/venues/seats/create/';
-  static String venuesSeatsUpdate(String id) => '/venues/seats/$id/update/';
+  // Legal Documents
+  static const String legalDocuments = '/v1/legal-documents/';
+  static String legalDocumentDetail(String id) => '/v1/legal-documents/$id/';
+  static String legalDocumentFill(String id) => '/v1/legal-documents/$id/fill/';
 
-  // Legacy endpoints (keep for backward compatibility if needed)
-  static String showById(String id) => '/shows/all/$id/';
-  static String showsTicketsById(String id) => '/shows/tickets/$id/';
+  // Alerts
+  static const String alerts = '/v1/alerts/';
+  static String alertDetail(String id) => '/v1/alerts/$id/';
+  static String alertRespond(String id) => '/v1/alerts/$id/respond/';
+
+  // Incidents
+  static const String incidents = '/v1/incidents/';
+  static String incidentDetail(String id) => '/v1/incidents/$id/';
+  static const String incidentUpload = '/v1/incidents/upload/';
+
+  // Chat
+  static const String chatConversations = '/v1/chat/conversations/';
+  static String chatConversationDetail(String id) =>
+      '/v1/chat/conversations/$id/';
+  static String chatMessages(String conversationId) =>
+      '/v1/chat/conversations/$conversationId/messages/';
+  static String chatSendMessage(String conversationId) =>
+      '/v1/chat/conversations/$conversationId/messages/';
+
+  // Subscription
+  static const String subscriptionPlans = '/v1/subscriptions/plans/';
+  static const String mySubscription = '/v1/subscriptions/my-subscription/';
+  static const String subscriptionCreate = '/v1/subscriptions/';
+  static const String subscriptionCancel = '/v1/subscriptions/cancel/';
+
+  // Referrals
+  static const String referrals = '/v1/referrals/';
+  static const String myReferrals = '/v1/referrals/my-referrals/';
+  static const String applyReferral = '/v1/referrals/apply/';
 }

@@ -17,6 +17,5 @@ class AppRouter extends RootStackRouter {
           AutoRoute(page: AccountRoute.page)
         ]),
         AutoRoute(page: NotificationsRoute.page),
-        
       ];
 }

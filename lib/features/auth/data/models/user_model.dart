@@ -1,76 +1,61 @@
 // lib/features/auth/data/models/user_model.dart
 
-import 'package:legal_defender/features/auth/domain/entities/user_entity.dart';
-import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:legal_defender/features/auth/domain/entities/user_entity.dart';
 
 part 'user_model.g.dart';
 
 @JsonSerializable()
-class UserModel extends Equatable {
-  final String id;
-  final String email;
-  final String firstName;
-  final String lastName;
-  final String? profileImageUrl;
+class UserModel {
+  // Use user_id as fallback for id, and allow nulls to prevent crashes
+  @JsonKey(name: 'id')
+  final String? id;
+  @JsonKey(name: 'user_id')
+  final String? userId;
+
+  final String? email;
+  final String? username;
+
+  @JsonKey(name: 'phone_number')
+  final String? phoneNumber;
+
+  final String? state;
+
+  @JsonKey(name: 'profile_type')
+  final String? profileType;
+
+  final String? language;
+
+  final String? access;
+  final String? refresh;
 
   const UserModel({
-    required this.id,
-    required this.email,
-    required this.firstName,
-    required this.lastName,
-    this.profileImageUrl,
+    this.id,
+    this.userId,
+    this.email,
+    this.username,
+    this.phoneNumber,
+    this.state,
+    this.profileType,
+    this.language,
+    this.access,
+    this.refresh,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    // Handle different response structures from login and register
-    final userData = json['user'] ?? json;
-
-    return UserModel(
-      id: _parseId(userData),
-      email: _parseEmail(userData),
-      firstName: _parseFirstName(userData),
-      lastName: _parseLastName(userData),
-      profileImageUrl: userData['profile_image_url'] as String? ??
-          userData['profileImageUrl'] as String?,
-    );
-  }
-
-  static String _parseId(Map<String, dynamic> userData) {
-    return (userData['id']?.toString() ??
-        userData['user_id']?.toString() ??
-        '0');
-  }
-
-  static String _parseEmail(Map<String, dynamic> userData) {
-    return userData['email'] as String? ?? '';
-  }
-
-  static String _parseFirstName(Map<String, dynamic> userData) {
-    return userData['first_name'] as String? ??
-        userData['firstName'] as String? ??
-        userData['fullname'] as String? ??
-        '';
-  }
-
-  static String _parseLastName(Map<String, dynamic> userData) {
-    return userData['last_name'] as String? ??
-        userData['lastName'] as String? ??
-        '';
-  }
+  factory UserModel.fromJson(Map<String, dynamic> json) =>
+      _$UserModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
   UserEntity toEntity() {
     return UserEntity(
-      id: id,
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      profileImageUrl: profileImageUrl,
+      id: id ?? userId ?? '', // Use whichever ID is available
+      email: email ?? '',
+      username: username ?? 'User',
+      phoneNumber: phoneNumber ?? '',
+      state: state ?? '',
+      profileType: profileType ?? '',
+      language: language ?? 'en',
     );
   }
-
-  @override
-  List<Object?> get props => [id, email, firstName, lastName, profileImageUrl];
 }

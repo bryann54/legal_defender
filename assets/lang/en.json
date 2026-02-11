@@ -26,7 +26,10 @@
     "goToLogin": "Go to Login",
     "share": "Share",
     "goBack": "Go Back",
-    "store": "Store"
+    "store": "Store",
+    "profile": "Profile",
+    "select": "Select",
+    "selectOption": "Select an option"
   },
   "language": {
     "selectLanguage": "Select Language",
@@ -40,9 +43,13 @@
     "logIn": "Log In",
     "email": "Email",
     "password": "Password",
+    "profileType": "Profile type",
+    "state": "State",
+    "language": "Preferred language",
+    "referralCode": "Referral code (optional)",
+    "referralCodeHint": "Enter referral code if you have one",
     "confirmPassword": "Confirm Password",
-    "first name": "First Name",
-    "last name": "Last Name",
+   "username": "Username",
     "phoneNumber": "Phone Number",
     "createAccount": "Create Account",
     "setupAccount": "Set up your Legal Defender account",
@@ -53,10 +60,10 @@
     "processing": "Processing...",
     "settingThingsUp": "Setting things up for you...",
     "redirecting": "Redirecting...",
-    "emailRequired": "email is required",
-    "passwordRequired": "password is required",
-    "usernameRequired": "username is required",
-    "phoneRequired": "phone number is required",
+    "emailRequired": "Email is required",
+    "passwordRequired": "Password is required",
+    "usernameRequired": "Username is required",
+    "phoneRequired": "Phone number is required",
     "confirmPasswordRequired": "Password confirmation is required",
     "invalidEmail": "Invalid email address",
     "passwordTooShort": "Password must be at least 5 characters long",
@@ -96,7 +103,27 @@
     "invalidRequest": "Invalid request. Please check your information.",
     "codeExpired": "Verification code expired or invalid. Please start over.",
     "missingInformation": "Missing required information",
-    "verifyCodeError": "Failed to verify code. Please try again."
+    "verifyCodeError": "Failed to verify code. Please try again.",
+     "emailTooLong": "Email address is too long",
+    "emailConsecutiveDots": "Email address cannot contain consecutive dots",
+    "invalidEmailDomain": "Please enter a valid email domain",
+    
+    "usernameTooShort": "Username must be at least 3 characters",
+    "usernameTooLong": "Username is too long (maximum 30 characters)",
+    "usernameInvalidCharacters": "Username can only contain letters, numbers, underscores, and dots",
+    "usernameInvalidStartEnd": "Username cannot start or end with dot or underscore",
+    "usernameConsecutiveSpecial": "Username cannot contain consecutive special characters",
+
+    "passwordTooLong": "Password is too long (maximum 128 characters)",
+    "passwordRequiresUppercase": "Password must contain at least one uppercase letter",
+    "passwordRequiresLowercase": "Password must contain at least one lowercase letter",
+    "passwordRequiresNumber": "Password must contain at least one number",
+    "passwordRequiresSpecial": "Password must contain at least one special character",
+    "passwordCommon": "This password is too common. Please choose a stronger password",
+    "passwordSequential": "Password should not contain sequential characters",
+    
+    "phoneInvalidCharacters": "Phone number can only contain digits and formatting characters (spaces, hyphens, parentheses, +)",
+    "phoneInvalidLength": "Please enter a valid phone number (10-15 digits)"
   },
   "dashboard": {
     "home": "Home",
@@ -123,7 +150,7 @@
     "goToProfile": "Go to Profile",
     "sosSendDocuments": "SOS - Send Documents",
     "addContactsOrAttorney": "Add emergency contacts or select an attorney to use SOS",
-    "aiLegalDefender": "Chat with your AI Legal Defender",
+    "aiLegalDefender": "Chat with your AI Legal Advocate",
     "legalGuidance247": "Get legal guidance 24/7",
     "resourcesAndRights": "Resources & Rights",
     "constitutionsLegalDocs": "Constitutions & legal docs",
@@ -155,7 +182,6 @@
     "referralProgram": "Refer friends and earn discounts",
     "logOut": "Log Out",
     "loggingOut": "Logging out...",
-    "logoutConfirm": "Log Out",
     "logoutMessage": "Are you sure you want to log out?",
     "logoutError": "Failed to log out. Please try again.",
     "permissions": "Permissions",
@@ -203,6 +229,8 @@
     "welcome": "Welcome",
     "welcomeTo": "Welcome to",
     "accountDetails": "Account Details",
+    "account": "Account",
+    "preferences": "Preferences",
     "manageAccountDetails": "Manage your Account Details",
     "paymentHistory": "Payment History",
     "viewPastOrders": "View your past orders",
@@ -482,7 +510,30 @@
     "subscriptionRequired": "A subscription is required to access this feature.",
     "startSubscription": "Start Subscription"
   },
-
+"validation": {
+    "required": "{field} is required",
+    "invalidEmail": "Invalid email address",
+    "emailTooLong": "Email address is too long",
+    "emailConsecutiveDots": "Email address cannot contain consecutive dots",
+    "invalidEmailDomain": "Please enter a valid email domain",
+    "passwordsDontMatch": "Passwords do not match",
+    "invalidPhone": "Invalid phone number",
+    "usernameTooShort": "Username must be at least 3 characters",
+    "usernameTooLong": "Username is too long (maximum 30 characters)",
+    "usernameInvalidCharacters": "Username can only contain letters, numbers, underscores, and dots",
+    "usernameInvalidStartEnd": "Username cannot start or end with a dot or underscore",
+    "usernameConsecutiveSpecial": "Username cannot contain consecutive special characters",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "passwordTooLong": "Password is too long (maximum 128 characters)",
+    "passwordRequiresUppercase": "Password must contain at least one uppercase letter",
+    "passwordRequiresLowercase": "Password must contain at least one lowercase letter",
+    "passwordRequiresNumber": "Password must contain at least one number",
+    "passwordRequiresSpecial": "Password must contain at least one special character",
+    "passwordCommon": "This password is too common. Please choose a stronger password",
+    "passwordSequential": "Password should not contain sequential characters",
+    "phoneInvalidCharacters": "Phone number can only contain digits and formatting characters (spaces, hyphens, parentheses, +)",
+    "phoneInvalidLength": "Please enter a valid phone number (10-15 digits)"
+  },
   "onboarding": {
     "title": "Welcome",
     "skip": "Skip",
@@ -490,16 +541,20 @@
     "getStarted": "Get Started",
     "pages": {
       "guidance": {
-        "title": "Expert Legal Guidance",
-        "subtitle": "Navigate complex legal situations with confidence. Get instant access to expert legal knowledge tailored to your needs."
+        "title": "Get help when it matters",
+        "subtitle": "Instatnt alerts and emergency contact notifications."
       },
       "secure": {
-        "title": "Secure & Private",
-        "subtitle": "Your legal matters stay confidential. End-to-end encryption ensures your sensitive information is always protected."
+        "title": "Record Safety",
+        "subtitle": "Securely record encounters with automatic backup and protection."
       },
       "available": {
-        "title": "Always Available",
-        "subtitle": "Legal help when you need it most. 24/7 access to legal resources, documents, and guidance at your fingertips."
-      }
+        "title": "connect with attorneys",
+        "subtitle": "Get connected to trusted legal proffesional in your area."
+      },
+      "resources": {
+        "title": "Access legal resources",
+        "subtitle": "Browse legal documents, guides, and educational materials."
+    }
     }}
 }

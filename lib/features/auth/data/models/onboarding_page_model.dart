@@ -1,11 +1,11 @@
 class OnboardingPageModel {
-  final String title;
-  final String subtitle;
-  final String iconData;
+  final String titleKey;
+  final String subtitleKey;
+  final String imageAsset;
 
   const OnboardingPageModel({
-    required this.title,
-    required this.subtitle,
-    required this.iconData,
+    required this.titleKey,
+    required this.subtitleKey,
+    required this.imageAsset,
   });
 }

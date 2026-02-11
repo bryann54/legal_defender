@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:legal_defender/common/res/colors.dart'; // Using AppColors as requested
 import 'package:legal_defender/common/res/l10n.dart';
 import 'package:legal_defender/features/account/presentation/bloc/account_bloc.dart';
 
@@ -10,25 +11,26 @@ class LanguageSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return BlocBuilder<AccountBloc, AccountState>(
       builder: (context, state) {
-        // Get current locale from context
+        // Use the new enum status check
+        final bool isLoading = state.status == AccountStatus.loading;
         final currentLocale = Localizations.localeOf(context);
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: isDark
-                ? Colors.white.withOpacity(0.1)
-                : Colors.black.withOpacity(0.05),
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isDark
-                  ? Colors.white.withOpacity(0.2)
-                  : Colors.black.withOpacity(0.1),
-              width: 1,
+                  ? Colors.white.withValues(alpha: 0.2)
+                  : Colors.black.withValues(alpha: 0.1),
             ),
           ),
           child: Row(
@@ -43,64 +45,42 @@ class LanguageSelector extends StatelessWidget {
               DropdownButton<Locale>(
                 value: currentLocale,
                 underline: const SizedBox(),
-                icon: Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  size: 18,
-                  color: isDark ? Colors.white70 : Colors.black54,
-                ),
+                icon: isLoading
+                    ? _buildLoader(isDark)
+                    : Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        size: 18,
+                        color: isDark ? Colors.white70 : Colors.black54,
+                      ),
                 isDense: true,
                 borderRadius: BorderRadius.circular(12),
-                dropdownColor: isDark ? const Color(0xFF2a2a3e) : Colors.white,
-                style: TextStyle(
+                dropdownColor:
+                    isDark ? AppColors.darkBackgroundColor : Colors.white,
+                style: theme.textTheme.bodyMedium?.copyWith(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: isDark ? Colors.white : Colors.black87,
                 ),
-                items: [
-                  DropdownMenuItem(
-                    value: const Locale('en'),
-                    child: _LanguageItem(
-                      label: AppLocalizations.getString(context, 'english'),
-                      flag: '🇺🇸',
-                      isDark: isDark,
-                    ),
-                  ),
-                  DropdownMenuItem(
-                    value: const Locale('fr'),
-                    child: _LanguageItem(
-                      label: AppLocalizations.getString(context, 'french'),
-                      flag: '🇫🇷',
-                      isDark: isDark,
-                    ),
-                  ),
-                  DropdownMenuItem(
-                    value: const Locale('es'),
-                    child: _LanguageItem(
-                      label: AppLocalizations.getString(context, 'spanish'),
-                      flag: '🇪🇸',
-                      isDark: isDark,
-                    ),
-                  ),
-                ],
-                onChanged: state is AccountLoadingState
+                onChanged: isLoading
                     ? null
                     : (locale) {
                         if (locale != null &&
                             locale.languageCode != currentLocale.languageCode) {
                           context.read<AccountBloc>().add(
                                 ChangeLanguageEvent(
-                                  langCode: locale.languageCode,
-                                ),
+                                    langCode: locale.languageCode),
                               );
                         }
                       },
+                items: [
+                  _buildDropdownItem(
+                      context, const Locale('en'), 'english', '🇺🇸'),
+                  _buildDropdownItem(
+                      context, const Locale('es'), 'spanish', '🇪🇸'),
+                ],
                 selectedItemBuilder: (context) => [
-                  _buildSelectedItem(
-                      'EN', isDark, state is AccountLoadingState),
-                  _buildSelectedItem(
-                      'FR', isDark, state is AccountLoadingState),
-                  _buildSelectedItem(
-                      'ES', isDark, state is AccountLoadingState),
+                  _buildSelectedText('EN', isDark),
+                  _buildSelectedText('ES', isDark),
                 ],
               ),
             ],
@@ -110,51 +90,49 @@ class LanguageSelector extends StatelessWidget {
     );
   }
 
-  Widget _buildSelectedItem(String code, bool isDark, bool isLoading) {
-    return Center(
-      child: isLoading
-          ? SizedBox(
-              width: 14,
-              height: 14,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation(
-                  isDark ? Colors.white70 : Colors.black54,
-                ),
-              ),
-            )
-          : Text(
-              code,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white70 : Colors.black54,
-              ),
-            ),
+  DropdownMenuItem<Locale> _buildDropdownItem(
+    BuildContext context,
+    Locale locale,
+    String labelKey,
+    String flag,
+  ) {
+    return DropdownMenuItem(
+      value: locale,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(flag, style: const TextStyle(fontSize: 16)),
+          const SizedBox(width: 8),
+          Text(AppLocalizations.getString(context, labelKey)),
+        ],
+      ),
     );
   }
-}
 
-class _LanguageItem extends StatelessWidget {
-  final String label;
-  final String flag;
-  final bool isDark;
+  Widget _buildSelectedText(String code, bool isDark) {
+    return Center(
+      child: Text(
+        code,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: isDark ? Colors.white70 : Colors.black54,
+        ),
+      ),
+    );
+  }
 
-  const _LanguageItem({
-    required this.label,
-    required this.flag,
-    required this.isDark,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(flag, style: const TextStyle(fontSize: 16)),
-        const SizedBox(width: 8),
-        Text(label),
-      ],
+  Widget _buildLoader(bool isDark) {
+    return Container(
+      margin: const EdgeInsets.only(left: 4),
+      width: 12,
+      height: 12,
+      child: CircularProgressIndicator(
+        strokeWidth: 2,
+        valueColor: AlwaysStoppedAnimation(
+          isDark ? Colors.white70 : AppColors.primaryColor,
+        ),
+      ),
     );
   }
 }

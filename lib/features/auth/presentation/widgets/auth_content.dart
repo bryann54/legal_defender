@@ -3,8 +3,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:legal_defender/common/res/l10n.dart';
 import 'package:legal_defender/common/notifiers/locale_provider.dart';
+import 'package:legal_defender/common/widgets/language%20selector.dart';
+import 'package:legal_defender/common/widgets/skip_button.dart';
 import 'package:provider/provider.dart';
 import 'package:legal_defender/features/auth/presentation/widgets/getstarted_button.dart';
 import 'package:legal_defender/features/auth/presentation/widgets/onBoarding_data.dart';
@@ -88,7 +91,7 @@ class _AuthContentState extends State<AuthContent> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final provider = Provider.of<LocaleProvider>(context);
+    Provider.of<LocaleProvider>(context);
 
     return Stack(
       children: [
@@ -99,7 +102,6 @@ class _AuthContentState extends State<AuthContent> {
           itemBuilder: (context, index) {
             return _OnboardingPage(
               pageData: OnboardingData.pages[index],
-              isDark: isDark,
             );
           },
         ),
@@ -112,53 +114,24 @@ class _AuthContentState extends State<AuthContent> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              // Language selector
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color:
-                      isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
-                  borderRadius: BorderRadius.circular(20),
+                constraints: const BoxConstraints(
+                  maxWidth: 160,
+                  minWidth: 120,
                 ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<Locale>(
-                    value: provider.locale,
-                    icon: Icon(Icons.language,
-                        size: 18,
-                        color: isDark ? Colors.white70 : Colors.black54),
-                    dropdownColor:
-                        isDark ? const Color(0xFF1a1a2e) : Colors.white,
-                    style: TextStyle(
-                        color: isDark ? Colors.white : Colors.black87,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14),
-                    items: [
-                      DropdownMenuItem(
-                          value: const Locale('en'),
-                          child: Text(AppLocalizations.getString(
-                              context, 'language.english'))),
-                      DropdownMenuItem(
-                          value: const Locale('es'),
-                          child: Text(AppLocalizations.getString(
-                              context, 'language.spanish'))),
-                    ],
-                    onChanged: (locale) =>
-                        locale != null ? provider.setLocale(locale) : null,
-                  ),
-                ),
+                child: LanguageSelector(isDark: isDark),
               ),
+
+              // Skip button
               if (!_showGetStarted)
-                TextButton(
+                SkipButton(
                   onPressed: _skipToEnd,
-                  child: Text(
-                    AppLocalizations.getString(context, 'common.skip'),
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600),
-                  ),
-                ),
+                  showIcon: isDark,
+                )
             ],
           ),
         ),
-
         // BOTTOM ACTIONS
         Positioned(
           bottom: 0,
@@ -173,7 +146,6 @@ class _AuthContentState extends State<AuthContent> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _buildPageIndicators(isDark),
-                const SizedBox(height: 32),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 300),
                   child: _showGetStarted
@@ -231,42 +203,51 @@ class _AuthContentState extends State<AuthContent> {
 
 class _OnboardingPage extends StatelessWidget {
   final OnboardingPageModel pageData;
-  final bool isDark;
 
-  const _OnboardingPage({required this.pageData, required this.isDark});
+  const _OnboardingPage({required this.pageData});
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          children: [
-            const Spacer(flex: 2),
-            Text(pageData.iconData, style: const TextStyle(fontSize: 80)),
-            const Spacer(flex: 1),
-            Text(
-              // THIS TRANSLATES THE KEYS FROM ONBOARDINGDATA
-              AppLocalizations.getString(context, pageData.title),
-              style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: isDark ? Colors.white : const Color(0xFF1a1a2e)),
-              textAlign: TextAlign.center,
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Image Aspect Ratio for consistent sizing
+          AspectRatio(
+            aspectRatio: 1,
+            child: Image.asset(
+              pageData.imageAsset,
+              fit: BoxFit.contain,
+            )
+                .animate()
+                .fadeIn(duration: 600.ms)
+                .scale(begin: const Offset(0.8, 0.8)),
+          ),
+          const SizedBox(height: 60),
+          Text(
+            AppLocalizations.getString(context, pageData.titleKey),
+            style: GoogleFonts.poppins(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: theme.colorScheme.onSurface,
             ),
-            const SizedBox(height: 16),
-            Text(
-              // THIS TRANSLATES THE KEYS FROM ONBOARDINGDATA
-              AppLocalizations.getString(context, pageData.subtitle),
-              style: TextStyle(
-                  fontSize: 16,
-                  color: isDark ? Colors.grey[400] : const Color(0xFF64748b),
-                  height: 1.6),
-              textAlign: TextAlign.center,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            AppLocalizations.getString(context, pageData.subtitleKey),
+            style: GoogleFonts.poppins(
+              fontSize: 15,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              height: 1.5,
             ),
-            const Spacer(flex: 3),
-          ],
-        ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 100), // Space for bottom actions
+        ],
       ),
     );
   }

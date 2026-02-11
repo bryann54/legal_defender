@@ -1,5 +1,8 @@
+// lib/features/auth/presentation/widgets/password_strength_indicator.dart
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:legal_defender/common/res/l10n.dart';
 import 'package:legal_defender/common/utils/auth_validators.dart';
 
 class PasswordStrengthIndicator extends StatelessWidget {
@@ -12,7 +15,8 @@ class PasswordStrengthIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final strengthText = AuthValidators.getPasswordStrengthText(strength);
+    final strengthText =
+        AuthValidators.getPasswordStrengthText(context, strength);
     final strengthColor = AuthValidators.getPasswordStrengthColor(strength);
 
     return Column(
@@ -42,7 +46,8 @@ class PasswordStrengthIndicator extends StatelessWidget {
 
         // Strength text
         Text(
-          'Password strength: $strengthText',
+          AppLocalizations.getString(context, 'auth.passwordStrength')
+              .replaceFirst('{strength}', strengthText),
           style: GoogleFonts.poppins(
             fontSize: 12,
             fontWeight: FontWeight.w500,
@@ -54,7 +59,7 @@ class PasswordStrengthIndicator extends StatelessWidget {
         if (strength < 3) ...[
           const SizedBox(height: 4),
           Text(
-            'Must include: uppercase, lowercase, number & special character',
+            AppLocalizations.getString(context, 'auth.passwordRequirements'),
             style: GoogleFonts.poppins(
               fontSize: 11,
               color: Theme.of(context)
