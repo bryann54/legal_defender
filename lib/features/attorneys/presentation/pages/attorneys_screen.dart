@@ -1,7 +1,7 @@
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:legal_defender/common/res/l10n.dart';
-import 'package:legal_defender/features/home/presentation/widgets/custom_app_bar.dart';
+import 'package:legal_defender/common/widgets/custom_app_bar.dart';
 
 @RoutePage()
 class AttorneysScreen extends StatelessWidget {
