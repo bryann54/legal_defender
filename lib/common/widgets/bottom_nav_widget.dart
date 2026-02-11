@@ -22,7 +22,7 @@ class CustomFlashyBottomNav extends StatelessWidget {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final activeColor =
         isDarkMode ? AppColors.cardLight : Theme.of(context).primaryColor;
-    final inactiveColor = Colors.grey[600]!;
+    final inactiveColor = AppColors.textPrimary;
 
     return Container(
       decoration: BoxDecoration(
