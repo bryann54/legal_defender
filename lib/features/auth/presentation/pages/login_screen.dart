@@ -91,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     isPassword: true,
                     icon: Icons.lock_outline,
                     isPasswordVisible: _isPasswordVisible,
-                  onVisibilityToggle: () => setState(
+                    onVisibilityToggle: () => setState(
                         () => _isPasswordVisible = !_isPasswordVisible),
                     validator: (value) => AuthValidators.validatePassword(
                         context, value,

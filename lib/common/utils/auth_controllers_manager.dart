@@ -122,6 +122,7 @@ class RegisterControllersManager extends BaseAuthManager {
     referralCodeController.dispose();
   }
 }
+
 class PasswordResetControllersManager extends BaseAuthManager {
   final emailController = TextEditingController();
 

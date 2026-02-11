@@ -40,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
     switch (state.status) {
       case AuthStatus.authenticated:
         context.router.replace(MainRoute());
-        //  context.router.replace(AuthRoute());
+      //  context.router.replace(AuthRoute());
 
       case AuthStatus.unauthenticated:
       case AuthStatus.error:

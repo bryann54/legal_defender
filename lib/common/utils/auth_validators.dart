@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:legal_defender/common/res/l10n.dart'; // adjust import path as needed
-import 'dart:ui';
 
 class AuthValidators {
   AuthValidators._();

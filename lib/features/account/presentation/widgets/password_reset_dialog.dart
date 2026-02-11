@@ -34,7 +34,8 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
     _controllersManager.dispose();
     super.dispose();
   }
-void _validateEmail() {
+
+  void _validateEmail() {
     final isValid = _controllersManager.hasEmail &&
         AuthValidators.validateEmail(context, _controllersManager.email) ==
             null;
@@ -167,7 +168,7 @@ void _validateEmail() {
                   label: AppLocalizations.getString(context, 'auth.email'),
                   icon: Icons.email_outlined,
                   keyboardType: TextInputType.emailAddress,
-                validator: (value) =>
+                  validator: (value) =>
                       AuthValidators.validateEmail(context, value),
                 ),
               ),

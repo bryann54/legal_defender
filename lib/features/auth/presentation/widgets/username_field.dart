@@ -10,14 +10,14 @@ class UsernameField extends StatelessWidget {
   final TextEditingController controller;
   final ValueChanged<String>? onChanged;
   final int? animationDelay;
-   final String? Function(String?)? validator;
+  final String? Function(String?)? validator;
 
   const UsernameField({
     super.key,
     required this.controller,
     this.onChanged,
     this.animationDelay,
-     this.validator,
+    this.validator,
   });
 
   @override

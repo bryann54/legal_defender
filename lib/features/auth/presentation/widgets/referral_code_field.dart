@@ -18,7 +18,7 @@ class ReferralCodeField extends StatelessWidget {
       controller: controller,
       label: AppLocalizations.getString(context, 'auth.referralCode'),
       icon: Icons.card_giftcard_outlined,
-      validator: (_) => null, 
+      validator: (_) => null,
     );
   }
 }

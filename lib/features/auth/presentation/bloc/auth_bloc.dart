@@ -47,7 +47,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-Future<void> _onSignUp(SignUpEvent event, Emitter<AuthState> emit) async {
+  Future<void> _onSignUp(SignUpEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStatus.loading));
 
     final result = await _signUpUseCase({
@@ -71,6 +71,7 @@ Future<void> _onSignUp(SignUpEvent event, Emitter<AuthState> emit) async {
       },
     );
   }
+
   Future<void> _onCheckAuthStatus(
       CheckAuthStatusEvent event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStatus.loading));

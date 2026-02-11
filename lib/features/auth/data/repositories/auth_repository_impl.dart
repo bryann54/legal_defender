@@ -58,12 +58,12 @@ class AuthRepositoryImpl implements AuthRepository {
       final userModel = await _remote.register(params);
 
       // 2. Extract and save tokens from API response
-   if (userModel.access != null && userModel.refresh != null) {
+      if (userModel.access != null && userModel.refresh != null) {
         await _local.saveTokens(
           access: userModel.access!,
           refresh: userModel.refresh!,
         );
-   await _local.saveUser(userModel);
+        await _local.saveUser(userModel);
         return Right(userModel.toEntity());
       }
       // 3. Save user data
