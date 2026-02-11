@@ -78,7 +78,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     label: AppLocalizations.getString(context, 'auth.email'),
                     icon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
-                    validator: AuthValidators.validateEmail,
+                    validator: (value) =>
+                        AuthValidators.validateEmail(context, value),
                   ).animate().fadeIn().slideY(begin: 0.1, end: 0),
 
                   const SizedBox(height: 16),
@@ -90,10 +91,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     isPassword: true,
                     icon: Icons.lock_outline,
                     isPasswordVisible: _isPasswordVisible,
-                    onVisibilityToggle: () => setState(
+                  onVisibilityToggle: () => setState(
                         () => _isPasswordVisible = !_isPasswordVisible),
-                    validator: (v) =>
-                        AuthValidators.validateRequired(v, 'Password'),
+                    validator: (value) => AuthValidators.validatePassword(
+                        context, value,
+                        isStrict: true),
                   ).animate(delay: 100.ms).fadeIn().slideY(begin: 0.1, end: 0),
 
                   const SizedBox(height: 32),

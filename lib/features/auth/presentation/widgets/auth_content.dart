@@ -91,7 +91,7 @@ class _AuthContentState extends State<AuthContent> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final provider = Provider.of<LocaleProvider>(context);
+    Provider.of<LocaleProvider>(context);
 
     return Stack(
       children: [
@@ -125,7 +125,7 @@ class _AuthContentState extends State<AuthContent> {
 
               // Skip button
               if (!_showGetStarted)
-              SkipButton(
+                SkipButton(
                   onPressed: _skipToEnd,
                   showIcon: isDark,
                 )

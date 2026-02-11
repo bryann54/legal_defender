@@ -15,8 +15,12 @@ import 'package:legal_defender/features/auth/presentation/widgets/auth_button.da
 import 'package:legal_defender/features/auth/presentation/widgets/auth_header.dart';
 import 'package:legal_defender/features/auth/presentation/widgets/auth_state_listener.dart';
 import 'package:legal_defender/features/auth/presentation/widgets/auth_text_field.dart';
+import 'package:legal_defender/features/auth/presentation/widgets/language_dropdown.dart';
 import 'package:legal_defender/features/auth/presentation/widgets/password_strength_indicator.dart';
-// lib/features/auth/presentation/pages/register_screen.dart
+import 'package:legal_defender/features/auth/presentation/widgets/profile_type_dropdown.dart';
+import 'package:legal_defender/features/auth/presentation/widgets/referral_code_field.dart';
+import 'package:legal_defender/features/auth/presentation/widgets/us_state_dropdown.dart';
+import 'package:legal_defender/features/auth/presentation/widgets/username_field.dart';
 
 @RoutePage()
 class RegisterScreen extends StatefulWidget {
@@ -46,6 +50,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _handleRegister() {
+    // Calling validate() now flips showErrors to true in the manager
     if (_manager.validate()) {
       context.read<AuthBloc>().add(
             SignUpEvent(
@@ -54,6 +59,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               username: _manager.userName,
               phoneNumber: _manager.phone,
               state: _manager.state,
+              profileType: _manager.profileType,
+              language: _manager.language,
+              referralCode: _manager.referralCode,
             ),
           );
     }
@@ -71,6 +79,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Form(
               key: _manager.formKey,
+              // Only validate on user interaction AFTER the first submit attempt
+              autovalidateMode: _manager.showErrors
+                  ? AutovalidateMode.onUserInteraction
+                  : AutovalidateMode.disabled,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -82,19 +94,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: 40),
                   AuthTextField(
-                    controller: _manager.usernameController,
-                    label:
-                        AppLocalizations.getString(context, 'profile.username'),
-                    icon: Icons.person_outline,
-                  ).animate().fadeIn().slideY(begin: 0.1, end: 0),
-                  const SizedBox(height: 16),
-                  AuthTextField(
                     controller: _manager.emailController,
                     label: AppLocalizations.getString(context, 'auth.email'),
                     icon: Icons.email_outlined,
                     keyboardType: TextInputType.emailAddress,
-                    validator: AuthValidators.validateEmail,
-                  ).animate(delay: 100.ms).fadeIn().slideY(begin: 0.1, end: 0),
+                    validator: (v) => AuthValidators.validateEmail(context, v),
+                  ).animate().fadeIn().slideY(begin: 0.1, end: 0),
+                  const SizedBox(height: 16),
+                  UsernameField(
+                    controller: _manager.usernameController,
+                    onChanged: (_) => setState(() {}),
+                    animationDelay: 100,
+                    validator: (v) =>
+                        AuthValidators.validateUsername(context, v),
+                  ),
+                  const SizedBox(height: 16),
+                  AuthTextField(
+                    controller: _manager.phoneController,
+                    label:
+                        AppLocalizations.getString(context, 'auth.phoneNumber'),
+                    icon: Icons.phone_outlined,
+                    keyboardType: TextInputType.phone,
+                    validator: (v) => AuthValidators.validatePhone(context, v),
+                  ).animate(delay: 150.ms).fadeIn().slideY(begin: 0.1, end: 0),
                   const SizedBox(height: 16),
                   AuthTextField(
                     controller: _manager.passwordController,
@@ -104,8 +126,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     isPasswordVisible: _isPasswordVisible,
                     onVisibilityToggle: () => setState(
                         () => _isPasswordVisible = !_isPasswordVisible),
-                    validator: (v) =>
-                        AuthValidators.validatePassword(v, isStrict: true),
+                    validator: (v) => AuthValidators.validatePassword(
+                        context, v,
+                        isStrict: true),
                   ).animate(delay: 200.ms).fadeIn().slideY(begin: 0.1, end: 0),
                   if (_manager.password.isNotEmpty)
                     Padding(
@@ -123,11 +146,54 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     onVisibilityToggle: () => setState(() =>
                         _isConfirmPasswordVisible = !_isConfirmPasswordVisible),
                     validator: (v) => AuthValidators.validateConfirmPassword(
-                        v, _manager.password),
+                        context, v, _manager.password),
+                  ).animate(delay: 250.ms).fadeIn().slideY(begin: 0.1, end: 0),
+                  const SizedBox(height: 24),
+                  ProfileTypeDropdown(
+                    selectedType: _manager.selectedProfileType,
+                    onChanged: _manager.updateProfileType,
+                    errorText: _manager.showErrors &&
+                            _manager.selectedProfileType == null
+                        ? AppLocalizations.getString(
+                                context, 'validation.required')
+                            .replaceFirst(
+                                '{field}',
+                                AppLocalizations.getString(
+                                    context, 'profileType'))
+                        : null,
                   ).animate(delay: 300.ms).fadeIn().slideY(begin: 0.1, end: 0),
+                  const SizedBox(height: 16),
+                  UsStateDropdown(
+                    selectedState: _manager.selectedState,
+                    onChanged: _manager.updateState,
+                    errorText: _manager.showErrors &&
+                            _manager.selectedState == null
+                        ? AppLocalizations.getString(
+                                context, 'validation.required')
+                            .replaceFirst('{field}',
+                                AppLocalizations.getString(context, 'state'))
+                        : null,
+                  ).animate(delay: 350.ms).fadeIn().slideY(begin: 0.1, end: 0),
+                  const SizedBox(height: 16),
+                  LanguageDropdown(
+                    selectedLanguage: _manager.selectedLanguage,
+                    onChanged: _manager.updateLanguage,
+                    errorText: _manager.showErrors &&
+                            _manager.selectedLanguage == null
+                        ? AppLocalizations.getString(
+                                context, 'validation.required')
+                            .replaceFirst('{field}',
+                                AppLocalizations.getString(context, 'language'))
+                        : null,
+                  ).animate(delay: 400.ms).fadeIn().slideY(begin: 0.1, end: 0),
+                  const SizedBox(height: 16),
+                  ReferralCodeField(
+                    controller: _manager.referralCodeController,
+                  ).animate(delay: 450.ms).fadeIn().slideY(begin: 0.1, end: 0),
                   const SizedBox(height: 32),
                   BlocBuilder<AuthBloc, AuthState>(
                     builder: (context, state) {
+                      // Button logic remains reactive to current input state
                       final isReady = _manager.canAttemptRegister &&
                           _manager.passwordsMatch &&
                           state.status != AuthStatus.loading;
@@ -141,7 +207,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         heroTag: 'register_button',
                       );
                     },
-                  ).animate(delay: 400.ms).fadeIn(),
+                  ).animate(delay: 500.ms).fadeIn(),
                 ],
               ),
             ),

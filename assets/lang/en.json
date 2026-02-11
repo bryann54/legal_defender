@@ -27,7 +27,9 @@
     "share": "Share",
     "goBack": "Go Back",
     "store": "Store",
-    "profile": "Profile"
+    "profile": "Profile",
+    "select": "Select",
+    "selectOption": "Select an option"
   },
   "language": {
     "selectLanguage": "Select Language",
@@ -41,9 +43,13 @@
     "logIn": "Log In",
     "email": "Email",
     "password": "Password",
+    "profileType": "Profile type",
+    "state": "State",
+    "language": "Preferred language",
+    "referralCode": "Referral code (optional)",
+    "referralCodeHint": "Enter referral code if you have one",
     "confirmPassword": "Confirm Password",
-    "firstName": "First Name",
-    "lastName": "Last Name",
+   "username": "Username",
     "phoneNumber": "Phone Number",
     "createAccount": "Create Account",
     "setupAccount": "Set up your Legal Defender account",
@@ -97,7 +103,27 @@
     "invalidRequest": "Invalid request. Please check your information.",
     "codeExpired": "Verification code expired or invalid. Please start over.",
     "missingInformation": "Missing required information",
-    "verifyCodeError": "Failed to verify code. Please try again."
+    "verifyCodeError": "Failed to verify code. Please try again.",
+     "emailTooLong": "Email address is too long",
+    "emailConsecutiveDots": "Email address cannot contain consecutive dots",
+    "invalidEmailDomain": "Please enter a valid email domain",
+    
+    "usernameTooShort": "Username must be at least 3 characters",
+    "usernameTooLong": "Username is too long (maximum 30 characters)",
+    "usernameInvalidCharacters": "Username can only contain letters, numbers, underscores, and dots",
+    "usernameInvalidStartEnd": "Username cannot start or end with dot or underscore",
+    "usernameConsecutiveSpecial": "Username cannot contain consecutive special characters",
+
+    "passwordTooLong": "Password is too long (maximum 128 characters)",
+    "passwordRequiresUppercase": "Password must contain at least one uppercase letter",
+    "passwordRequiresLowercase": "Password must contain at least one lowercase letter",
+    "passwordRequiresNumber": "Password must contain at least one number",
+    "passwordRequiresSpecial": "Password must contain at least one special character",
+    "passwordCommon": "This password is too common. Please choose a stronger password",
+    "passwordSequential": "Password should not contain sequential characters",
+    
+    "phoneInvalidCharacters": "Phone number can only contain digits and formatting characters (spaces, hyphens, parentheses, +)",
+    "phoneInvalidLength": "Please enter a valid phone number (10-15 digits)"
   },
   "dashboard": {
     "home": "Home",
@@ -483,6 +509,30 @@
     "paymentRequired": "Payment Required",
     "subscriptionRequired": "A subscription is required to access this feature.",
     "startSubscription": "Start Subscription"
+  },
+"validation": {
+    "required": "{field} is required",
+    "invalidEmail": "Invalid email address",
+    "emailTooLong": "Email address is too long",
+    "emailConsecutiveDots": "Email address cannot contain consecutive dots",
+    "invalidEmailDomain": "Please enter a valid email domain",
+    "passwordsDontMatch": "Passwords do not match",
+    "invalidPhone": "Invalid phone number",
+    "usernameTooShort": "Username must be at least 3 characters",
+    "usernameTooLong": "Username is too long (maximum 30 characters)",
+    "usernameInvalidCharacters": "Username can only contain letters, numbers, underscores, and dots",
+    "usernameInvalidStartEnd": "Username cannot start or end with a dot or underscore",
+    "usernameConsecutiveSpecial": "Username cannot contain consecutive special characters",
+    "passwordTooShort": "Password must be at least 8 characters",
+    "passwordTooLong": "Password is too long (maximum 128 characters)",
+    "passwordRequiresUppercase": "Password must contain at least one uppercase letter",
+    "passwordRequiresLowercase": "Password must contain at least one lowercase letter",
+    "passwordRequiresNumber": "Password must contain at least one number",
+    "passwordRequiresSpecial": "Password must contain at least one special character",
+    "passwordCommon": "This password is too common. Please choose a stronger password",
+    "passwordSequential": "Password should not contain sequential characters",
+    "phoneInvalidCharacters": "Phone number can only contain digits and formatting characters (spaces, hyphens, parentheses, +)",
+    "phoneInvalidLength": "Please enter a valid phone number (10-15 digits)"
   },
   "onboarding": {
     "title": "Welcome",

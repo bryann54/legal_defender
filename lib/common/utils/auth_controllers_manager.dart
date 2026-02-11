@@ -1,22 +1,32 @@
 // lib/common/utils/auth_controllers_manager.dart
 
 import 'package:flutter/material.dart';
+import 'package:legal_defender/common/constants/us_states.dart';
+import 'package:legal_defender/features/auth/presentation/widgets/language_dropdown.dart';
+import 'package:legal_defender/features/auth/presentation/widgets/profile_type_dropdown.dart';
 
 abstract class BaseAuthManager {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   final VoidCallback? onFormChanged;
 
+  // Controls global error visibility
+  bool showErrors = false;
+
   BaseAuthManager(this.onFormChanged);
 
   void dispose();
-  bool validate() => formKey.currentState?.validate() ?? false;
+
+  bool validate() {
+    showErrors = true;
+    onFormChanged?.call();
+    return formKey.currentState?.validate() ?? false;
+  }
 }
 
 class LoginControllersManager extends BaseAuthManager {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  // Fix: Explicitly pass the parameter to the super constructor
   LoginControllersManager({VoidCallback? onFormChanged})
       : super(onFormChanged) {
     if (onFormChanged != null) {
@@ -43,7 +53,11 @@ class RegisterControllersManager extends BaseAuthManager {
   final confirmPasswordController = TextEditingController();
   final usernameController = TextEditingController();
   final phoneController = TextEditingController();
-  final stateController = TextEditingController();
+  final referralCodeController = TextEditingController();
+
+  UsState? selectedState;
+  ProfileType? selectedProfileType;
+  AppLanguage? selectedLanguage;
 
   RegisterControllersManager({VoidCallback? onFormChanged})
       : super(onFormChanged) {
@@ -53,25 +67,50 @@ class RegisterControllersManager extends BaseAuthManager {
       confirmPasswordController.addListener(onFormChanged);
       usernameController.addListener(onFormChanged);
       phoneController.addListener(onFormChanged);
-      stateController.addListener(onFormChanged);
+      referralCodeController.addListener(onFormChanged);
     }
   }
 
+  // Getters
   String get email => emailController.text.trim();
   String get password => passwordController.text;
   String get confirmPassword => confirmPasswordController.text;
   String get userName => usernameController.text.trim();
   String get phone => phoneController.text.trim();
-  String get state => stateController.text.trim();
+  String? get referralCode => referralCodeController.text.trim().isEmpty
+      ? null
+      : referralCodeController.text.trim();
+  String? get state => selectedState?.code;
+  String? get profileType => selectedProfileType?.apiValue;
+  String? get language => selectedLanguage?.apiValue;
 
-  // Fix: Added the missing getter for the Register Screen
   bool get passwordsMatch => password == confirmPassword;
 
   bool get canAttemptRegister =>
       email.isNotEmpty &&
       password.isNotEmpty &&
       confirmPassword.isNotEmpty &&
-      userName.isNotEmpty;
+      userName.isNotEmpty &&
+      phone.isNotEmpty &&
+      selectedState != null &&
+      selectedProfileType != null &&
+      selectedLanguage != null &&
+      passwordsMatch;
+
+  void updateState(UsState? value) {
+    selectedState = value;
+    onFormChanged?.call();
+  }
+
+  void updateProfileType(ProfileType? value) {
+    selectedProfileType = value;
+    onFormChanged?.call();
+  }
+
+  void updateLanguage(AppLanguage? value) {
+    selectedLanguage = value;
+    onFormChanged?.call();
+  }
 
   @override
   void dispose() {
@@ -80,10 +119,9 @@ class RegisterControllersManager extends BaseAuthManager {
     confirmPasswordController.dispose();
     usernameController.dispose();
     phoneController.dispose();
-    stateController.dispose();
+    referralCodeController.dispose();
   }
 }
-
 class PasswordResetControllersManager extends BaseAuthManager {
   final emailController = TextEditingController();
 

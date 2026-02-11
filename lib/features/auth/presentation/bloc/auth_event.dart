@@ -26,7 +26,9 @@ class SignUpEvent extends AuthEvent {
   final String password;
   final String username;
   final String phoneNumber;
-  final String state;
+  final String? state;
+  final String? profileType;
+  final String? language;
   final String? referralCode;
 
   const SignUpEvent({
@@ -34,13 +36,11 @@ class SignUpEvent extends AuthEvent {
     required this.password,
     required this.username,
     required this.phoneNumber,
-    required this.state,
+    this.state,
+    this.profileType,
+    this.language,
     this.referralCode,
   });
-
-  @override
-  List<Object?> get props =>
-      [email, password, username, phoneNumber, state, referralCode];
 }
 
 class SignOutEvent extends AuthEvent {

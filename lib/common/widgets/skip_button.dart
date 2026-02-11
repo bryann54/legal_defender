@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:legal_defender/common/res/l10n.dart';
+
 class SkipButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final String? text;
@@ -142,6 +143,7 @@ class SkipButton extends StatelessWidget {
     ];
   }
 }
+
 class SkipButtonStyle {
   final EdgeInsetsGeometry padding;
   final EdgeInsetsGeometry contentPadding;

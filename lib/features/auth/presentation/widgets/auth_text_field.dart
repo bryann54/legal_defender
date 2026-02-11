@@ -1,3 +1,5 @@
+// lib/features/auth/presentation/widgets/auth_text_field.dart
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -27,48 +29,63 @@ class AuthTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).dividerColor.withValues(alpha: 0.2),
+    final theme = Theme.of(context);
+
+    return TextFormField(
+      controller: controller,
+      obscureText: isPassword ? !(isPasswordVisible ?? false) : false,
+      keyboardType: keyboardType,
+      style: GoogleFonts.poppins(fontSize: 15),
+      onChanged: onChanged,
+      validator: validator,
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.poppins(fontSize: 14),
+        prefixIcon: Icon(icon, size: 20),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  isPasswordVisible ?? false
+                      ? Icons.visibility_off
+                      : Icons.visibility,
+                  size: 20,
+                ),
+                onPressed: onVisibilityToggle,
+              )
+            : null,
+        filled: true,
+        fillColor: theme.colorScheme.surface,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        // Default Border
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide:
+              BorderSide(color: theme.dividerColor.withValues(alpha: 0.2)),
         ),
-      ),
-      child: TextFormField(
-        controller: controller,
-        obscureText: isPassword ? !(isPasswordVisible ?? false) : false,
-        keyboardType: keyboardType,
-        style: GoogleFonts.poppins(fontSize: 15),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: GoogleFonts.poppins(fontSize: 14),
-          prefixIcon: Icon(icon, size: 20),
-          suffixIcon: isPassword
-              ? IconButton(
-                  icon: Icon(
-                    isPasswordVisible ?? false
-                        ? Icons.visibility_off
-                        : Icons.visibility,
-                    size: 20,
-                  ),
-                  onPressed: onVisibilityToggle,
-                )
-              : null,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide.none,
-          ),
-          filled: true,
-          fillColor: Theme.of(context).colorScheme.surface,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
-          errorStyle: GoogleFonts.poppins(fontSize: 12),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide:
+              BorderSide(color: theme.dividerColor.withValues(alpha: 0.2)),
         ),
-        validator: validator,
-        onChanged: onChanged,
+        // Focused Border
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: theme.colorScheme.primary, width: 1.5),
+        ),
+        // Error Borders
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: theme.colorScheme.error, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: theme.colorScheme.error, width: 1.5),
+        ),
+        errorStyle: GoogleFonts.poppins(
+          fontSize: 12,
+          color: theme.colorScheme.error,
+        ),
       ),
     );
   }
